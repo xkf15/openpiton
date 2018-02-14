@@ -172,12 +172,14 @@ module system(
 `ifndef VC707_BOARD
 `ifndef VCU118_BOARD
 `ifndef NEXYSVIDEO_BOARD
+`ifndef NEXYS4DDR_BOARD
   input                                         tck_i,
   input                                         tms_i,
   input                                         trst_ni,
   input                                         td_i,
   output                                        td_o,
 `endif
+`endif  
 `endif
 `endif
 `endif
@@ -237,6 +239,7 @@ module system(
 `endif // endif PITONSYS_UART
 
 `ifdef PITONSYS_SPI
+`ifndef NEXYS4DDR_BOARD
     `ifndef VC707_BOARD
     input                                       sd_cd,
     `ifndef VCU118_BOARD
@@ -246,6 +249,7 @@ module system(
     output                                      sd_clk_out,
     inout                                       sd_cmd,
     inout   [3:0]                               sd_dat,
+`endif // endif NEXYS4DDR_BOARD
 `endif // endif PITONSYS_SPI
 
 `ifdef PITON_FPGA_ETHERNETLITE
