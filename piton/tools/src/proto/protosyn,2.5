@@ -127,6 +127,8 @@ def usage():
     print >> sys.stderr, "\n       --oled <string>"
     print >> sys.stderr, "\n            String to be displayed on OLED display."
     print >> sys.stderr, "\n            (Genesys2 and nexysVideo boards only"
+    print >> sys.stderr, "\n       --miaow"
+    print >> sys.stderr, "              Implement design with MIAOW GPGPU (on vc707 only)."
     print >> sys.stderr, "\n       --slurm"
     print >> sys.stderr, "              Run steps of flow using SLURM job scheduler"
     print >> sys.stderr, "\n       --swait"
@@ -400,6 +402,7 @@ def setParserOptions(parser):
     parser.add_option("--passthru-dec-uart-pkttrace", dest="passthru_dec_uart_pkttrace", action="store_true", default=False)
     parser.add_option("--define", dest="define", action="store", default=None)
     parser.add_option("--oled", dest="oled", action="store")
+    parser.add_option("--miaow", dest="miaow", action="store_true", default=False)
     parser.add_option("-h", "--help", dest="help", action="store_true", default=False)
     parser.add_option("--gen-test-bram", dest="gen_test_bram", action="store_true", default=False)  # depricated ?
     parser.add_option("--make-mem-map", dest="make_mem_map", action="store_true", default=False)
@@ -509,6 +512,10 @@ def makeDefList(options):
     elif options.design == "chipset" and (options.board == "genesys2" or options.board == "nexysVideo"):
         disp_string = "Heeey!          I am a chipset  for (Open)Piton Enjoy debugging!"
         defines.append("{OLED_STRING=\\\"%s\\\"}" % disp_string)
+
+    # --miaow option
+    if options.miaow == True:
+        defines.append("MIAOW_FPGA_BUILD")
 
     return defines
 
