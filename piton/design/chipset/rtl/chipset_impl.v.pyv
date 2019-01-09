@@ -893,6 +893,27 @@ fake_uart fake_uart (
 );
 `endif // endif PITONSYS_IOCTRL
 
+neko  neko (
+    .chipset_clk            (clk                ),
+    .rst_n                  (rst_n              ),
+
+    .noc2_in_val             (buf_neko_noc2_valid   ),
+    .noc2_in_data            (buf_neko_noc2_data  ),
+    .noc2_in_rdy             (neko_buf_noc2_ready   ),
+
+    .noc2_out_val            (neko_buf_noc2_valid),
+    .noc2_out_data           (neko_buf_noc2_data),
+    .noc2_out_rdy            (buf_neko_noc2_ready),
+
+    .noc3_in_val             (buf_neko_noc3_valid),
+    .noc3_in_data            (buf_neko_noc3_data),
+    .noc3_in_rdy             (neko_buf_noc3_ready),
+
+    .noc3_out_val            (neko_buf_noc3_valid   ),
+    .noc3_out_data           (neko_buf_noc3_data  ),
+    .noc3_out_rdy            (buf_neko_noc3_ready   )
+
+);
 
 /////////////////////////////
 // Ariane-Specific Chipset //
