@@ -598,6 +598,193 @@ set CHIPSET_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/uart_mux.v" \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/fake_boot_ctrl.v" \
     "${DV_ROOT}/design/chipset/io_ctrl/rtl/eth_top.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/PS_flops_EX_WB_alu.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/PS_flops_issue_alu.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/alu.v               " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/alu_controller.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/alu_fsm.v           " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/alu_wb_queue.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/dest_shift_reg.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/mux_2_to_1.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/shift_in.v          " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/shift_out.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/src_mux.v           " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/src_shift_reg.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/alu/valu.v              " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/adder1bit.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/adder_param.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/circular_barrel_shift.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/decoder_10_to_1024.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/decoder_6_to_40.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/decoder_6b_40b_en.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/decoder_9_to_512.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/decoder_param.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/decoder_param_en.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/dff.v            " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/dff_en.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/dff_set.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/dff_set_en.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/dff_set_en_rst.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/encoder.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/encoder_5b_3b.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/flop.v           " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/flop_32b.v       " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/flop_en.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/mux2_1.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/mux_40x64b_to_1x64b.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/mux_40xX_to_1xX.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/mux_param.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/nand2.v          " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/not1.v           " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/priority_encoder_40to6.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/queue_param_1r_1w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/reg_32b.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/reg_40b.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/reg_40b_set.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/reg_40xX_1r_1w.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/reg_40xX_2r_1w.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/reg_64b.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/reg_param.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/regfile.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/common/register.v       " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/compute_unit/compute_unit.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/decode/PS_flops_wavepool_decode.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/decode/decode.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/decode/decode_core.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/decode/flag_generator.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/decode/instr_collate.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/decode/reg_field_encoder.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/exec/exec.v             " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/exec/rd_port_9_to_1.v   " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/exec/reg_40xX_1r_2w.v   " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/exec/reg_40xX_2r_2w.v   " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/exec/reg_40xX_2r_3w.v   " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/exec/wr_port_40x64b_8_to_1.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/add_wraparound_after40.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/adder.v           " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/adder6bit.v       " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/adder7bit.v       " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/decoder.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/dff_clr.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/dff_en_fixed_reset_value.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/fetch.v           " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/fetch_controller.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/incr_wraparound_at40.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/mask_gen.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/mux4to1_6bit.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/pc_block.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/regblock.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/regfile_clr.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/round_robin.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/vacant_mask_gen.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/wavegrp_info.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fetch/wfid_generator.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/compute_unit_fpga.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/fpga_memory.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/fpga_memory_2.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/neko.v             " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/neko_axi_slave.v   " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/neko_lsu.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/reg_128x32b_3r_2w_fpga.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/fpga/reg_256x32b_3r_1w_fpga.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/alu_issue_logic.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/arbiter.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/barrier_wait.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/branch_wait.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/busy_gpr_table.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/circular_barrel_shift_5b.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/finished_wf.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/functional_unit_reg.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/functional_unit_reg_bank.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/gpr_dependency_table.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/inflight_instr_counter.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/instr_info_table.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/instruction_arbiter.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/issue.v           " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/issue_flow_control.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/mem_wait.v        " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/mux_40xPARAMb_to_1xPARAMb.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/ready_bits_demux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/scoreboard.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/sgpr_busy_table_decoder.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/sgpr_busy_table_mux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/sgpr_comparator.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/spr_dependency_table.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/valid_entry.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/vgpr_busy_table_decoder.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/vgpr_busy_table_mux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/issue/vgpr_comparator.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/lsu/ds_addr_calc.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/lsu/lsu_addr_calculator.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/lsu/lsu_op_manager.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/lsu/lsu_opcode_decoder.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/lsu/mtbuf_addr_calc.v   " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/rfa/circular_shift.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/rfa/priority_encoder_16_to_4.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/rfa/rfa.v               " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/salu/salu.v             " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/salu/salu_controller.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/salu/scalar_alu.v       " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/mux_128x32b_to_1x32b.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/reg_128x32b_3r_2w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/reg_128x32b_3r_3w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/reg_512x32b_3r_2w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/reg_512x32b_3r_3w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/sgpr.v             " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/sgpr_3to1_rd_port_mux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/sgpr_simx_rd_port_mux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/sgpr_simx_wr_port_mux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/sgpr/sgpr_simxlsu_wr_port_mux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simd/amultp2_32x32.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simd/simd.v             " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simd/simd_alu.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simd/simd_instr_decoder.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_addsub.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_arith.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_div.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_intfloat_conv.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_intfloat_conv_except.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_mul.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_post_norm_addsub.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_post_norm_div.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_post_norm_intfloat_conv.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_post_norm_mul.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_pre_norm_addsub.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_pre_norm_div.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/miaow_fpu_pre_norm_mul.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/simf.v             " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/simf_alu.v         " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/simf/simf_instr_decoder.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/mux_256x32b_to_1x32b.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/rd_port_mux_8to1.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/reg_1024x32b_3r_1w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/reg_1024x32b_3r_2w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/reg_1024x32b_3r_2w_banked.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/reg_256x32b_3r_1w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/reg_256x32b_3r_2w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/reg_64page_1024x32b_3r_1w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/reg_64page_1024x32b_3r_2w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/vgpr.v             " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/vgpr_2to1_rd_port_mux.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/wfid_mux_8to1.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/wfid_mux_9to1.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/wr_port_mux_8to1.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/vgpr/wr_port_mux_9to1.v " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/PS_flops_fetch_wavepool.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/adder3bit.v    " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/decoder_3_to_8.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/mux_40x35b_to_1x35b.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/mux_8x64b_to_1x64b.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/queue_controller.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/reg_35b.v      " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/reg_3b.v       " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/reg_40x35b_1r_1w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/reg_8x64b_1r_1w.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/scbd_feeder.v  " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/wave_queue.v   " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/wavepool.v     " \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/wavepool_controller.v" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/wavepool/wq_pool.v      " \
     "${DV_ROOT}/design/chipset/mc/rtl/mc_top.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/noc_mig_bridge.v" \
     "${DV_ROOT}/design/chipset/mc/rtl/memory_zeroer.v" \
@@ -679,6 +866,11 @@ set CHIPSET_INCLUDE_FILES [list \
     "${DV_ROOT}/design/chipset/include/mc_define.h" \
     "${DV_ROOT}/design/chipset/include/uart16550_define.vh" \
     "${DV_ROOT}/design/chipset/include/chipset_define.vh" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/include/alu_definitions.h" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/include/decode_definitions.h" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/include/global_definitions.h" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/include/issue_definitions.h" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/include/lsu_definitions.h" \
 ]
 
 set CHIPSET_IP_FILE_PREFIXES [list \
@@ -692,6 +884,7 @@ set CHIPSET_IP_FILE_PREFIXES [list \
     "${DV_ROOT}/design/chipset/io_ctrl/xilinx/${BOARD}/ip_cores/bram_256x512/bram_256x512" \
     "${DV_ROOT}/design/chipset/io_ctrl/xilinx/${BOARD}/ip_cores/bram_16384x512/bram_16384x512" \
     "${DV_ROOT}/design/chipset/io_ctrl/xilinx/${BOARD}/ip_cores/bram_8192x512/bram_8192x512" \
+    "${DV_ROOT}/design/chipset/io_ctrl/miaow/xilinx/${BOARD}/ip_cores/block_ram/block_ram" \
     "${DV_ROOT}/design/chipset/mc/xilinx/${BOARD}/ip_cores/mig_7series_0/mig_7series_0" \
     "${DV_ROOT}/design/chipset/noc_sd_bridge/xilinx/${BOARD}/ip_cores/sd_fifo/sd_fifo" \
     "${DV_ROOT}/design/chipset/noc_sd_bridge/xilinx/${BOARD}/ip_cores/sd_cache_bram/sd_cache_bram" \
