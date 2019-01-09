@@ -157,6 +157,7 @@ Getopt::Long::Configure ('no_auto_abbrev') ;
         'image_diag_root' => [],
         'injobq' => -1,
         'max_cycle' => 0,
+        'miaow' => 0,
         'midas_args' => [],
         'midas_only' => 0,
         'midas_use_tgseed' => 0,
@@ -312,6 +313,7 @@ GetOptions (\%opt,
             'diaglist=s',
             'diaglist_cpp_args=s@',
             'group=s@',
+            'miaow!',
             'model_dir=s',
             'parallel!',
             'ariane!',
@@ -1071,6 +1073,8 @@ sub gen_flist
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tinyoram/rtl/Flist.oram") if ($opt{oram}) ;
   # Add Ariane flist if -ariane is specified
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tile/ariane/Flist.ariane") if ($opt{ariane}) ;
+  # Add MIAOW flist if -miaow is specified
+  push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chipset/io_ctrl/miaow/src/verilog/rtl/Flist.miaow") if ($opt{miaow}) ;
 
 
   foreach my $flist (@{$opt{flist}}) {
@@ -2538,6 +2542,7 @@ sub parse_args
   push (@{$opt{config_rtl}}, "PITON_PICO_HET") if ($opt{pico_het});
   push (@{$opt{config_rtl}}, "PITON_ARIANE")   if ($opt{ariane});
   push (@{$opt{config_rtl}}, "L2_CAM_MSHR")    if ($opt{ariane});
+  push (@{$opt{config_rtl}}, "MIAOW_FPGA_BUILD")    if ($opt{miaow});
 
 
   if ($opt{pico} or $opt{pico_het}) {
