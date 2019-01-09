@@ -49,4 +49,10 @@
         <length>0xd4000</length>
         <noc2in/>
     </port>
+    <port>
+        <name>neko</name>
+        <base>0xfff0e00000</base>
+        <length>0x100000</length>
+        <noc2in/>
+    </port>
 </devices>
