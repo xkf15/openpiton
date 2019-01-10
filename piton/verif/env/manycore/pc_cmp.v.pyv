@@ -268,7 +268,7 @@ endtask // get_thread_status
                 always @* begin
                     // TODO: Use the PICO INT equivalent. It'll be the reset to the core after
                     // the LCEs are finished resetting
-                    if () begin
+                    if (`BLACKPARROT_CORE0.transducer.reset_done_r) begin
                         active_thread[(0*4)] = 1'b1;
                         active_thread[(0*4)+1] = 1'b1;
                         active_thread[(0*4)+2] = 1'b1;
