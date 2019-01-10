@@ -995,7 +995,36 @@ print("        .CachedAddrEnd ( 64'h%s         )" % cacheStop)
     assign unavailable_o = 1'b0;
 
 `endif
-  end
+end else if (TILE_TYPE == `BLACKPARROT_TILE) begin : g_core
+      //////////////////////
+      // Ariane RV64 Core //
+      //////////////////////
+
+  `ifdef PITON_BLACKPARROT
+    pico_reset pico_reset(
+        .gclk(clk_gated),
+        .rst_n(rst_n_f),
+        .spc_grst_l(spc_grst_l)
+    );
+
+    bp_top_piton core (
+        .clk            (clk_gated),
+        .reset          (rst_n_f),
+
+        .noc1_data_o    (processor_router_data_noc1),
+        .noc1_v_o       (processor_router_valid_noc1),
+        .noc1_ready_i   (router_processor_ready_noc1),
+
+        .noc2_data_i    (buffer_processor_data_noc2),
+        .noc2_v_i       (buffer_processor_valid_noc2),
+        .noc2_ready_o   (processor_router_ready_noc2),
+
+        .noc3_data_o    (processor_router_data_noc3),
+        .noc3_v_o       (processor_router_valid_noc3),
+        .noc3_ready_i   (router_processor_ready_noc3)
+    );
+  `endif
+end
   endgenerate
 
 
@@ -1003,6 +1032,7 @@ print("        .CachedAddrEnd ( 64'h%s         )" % cacheStop)
     // L1.5 //
     //////////
 
+`ifndef PITON_BLACKPARROT
     l15_wrap l15(
         .clk(clk_gated),
         .rst_n(spc_grst_l),
@@ -1091,6 +1121,7 @@ print("        .CachedAddrEnd ( 64'h%s         )" % cacheStop)
         .rtap_srams_bist_command (rtap_srams_bist_command),
         .rtap_srams_bist_data (rtap_srams_bist_data)
     );
+`endif
 
     //////////
     // DMBR //

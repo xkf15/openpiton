@@ -172,6 +172,7 @@ Getopt::Long::Configure ('no_auto_abbrev') ;
         'pal_use_tgseed' => 0,
         'parallel' => 0,
         'ariane' => 0,
+        'blackparrot' => 0,
         'pico' => 0,
         'pico_het' => 0,
         'post_process_cmd' => [],
@@ -315,6 +316,7 @@ GetOptions (\%opt,
             'model_dir=s',
             'parallel!',
             'ariane!',
+            'blackparrot!',
             'pico!',
             'pico_het!',
             'regress!',
@@ -1071,6 +1073,8 @@ sub gen_flist
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tinyoram/rtl/Flist.oram") if ($opt{oram}) ;
   # Add Ariane flist if -ariane is specified
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tile/ariane/Flist.ariane") if ($opt{ariane}) ;
+  # Add BlackParrot flist if -blackparrot is specified 
+  push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tile/blackparrot/Flist.blackparrot") if ($opt{blackparrot}) ;
 
 
   foreach my $flist (@{$opt{flist}}) {
@@ -1314,6 +1318,9 @@ sub generic_sim_build
           push (@{$opt{vcs_build_args}}, "-sverilog +systemverilogext+.sv") ;
           push (@{$opt{vcs_build_args}}, "-ntb_opts uvm-1.1 +vpi ") ;
       }
+
+      # BlackParrot SystemVerilog options
+      push (@{$opt{vcs_build_args}}, "-sverilog") if ($opt{blackparrot}) ;
 
       if ($opt{ibm}) {
           push (@{$opt{config_rtl}}, "IBM_SRAM_RF16X160_MODEL_CHECKER") ;
@@ -2040,6 +2047,11 @@ sub assemble_diag
       push @{$opt{asm_diag_root}}, "$ENV{ARIANE_ROOT}/tmp/riscv-tests/build/benchmarks";
     }
 
+    # add path to blackparrot tests
+    if ($opt{blackparrot}) {
+      push @{$opt{asm_diag_root}), "$ENV{PITON_ROOT}/piton/design/chip/tile/blackparrot/bp_be/tb/asm/isa"
+    }
+
     # find diagnostic
     my $diag_full_path = &find_diag_path ($opt{asm_diag_name}, $opt{asm_diag_path}, $opt{asm_diag_root}) ;
 
@@ -2047,8 +2059,8 @@ sub assemble_diag
     if ($opt{asm_diag_name} =~ /\.pal/)        { $diag_name = "diag.pal"  ; }
     elsif ($opt{asm_diag_name} =~ /\.s\.gz/)   { $diag_name = "diag.s.gz" ; }
     elsif ($opt{precompiled} and $opt{ariane}) { $diag_name = "diag.exe"  ; }
-    elsif (($opt{pico} | $opt{ariane}) and ($opt{asm_diag_name} =~ /\.S/)) { $diag_name = "diag.S" ; }
-    elsif (($opt{pico} | $opt{ariane}) and ($opt{asm_diag_name} =~ /\.c/)) { $diag_name = "diag.c" ; }
+    elsif (($opt{pico} | $opt{ariane} | $opt{blackparrot} ) and ($opt{asm_diag_name} =~ /\.S/)) { $diag_name = "diag.S" ; }
+    elsif (($opt{pico} | $opt{ariane} | $opt{blackparrot} ) and ($opt{asm_diag_name} =~ /\.c/)) { $diag_name = "diag.c" ; }
     else { $diag_name = "diag.s" ; }
 
     # copy diagnostic to run area
@@ -2099,7 +2111,7 @@ sub assemble_diag
       my $waitstatus = call_program($cmd, "rv32_as.log");
       die ("DIE. rv32_as compilation error") if ($waitstatus) ;
 
-    } elsif ($opt{ariane}) {
+    } elsif ($opt{ariane} | $opt{blackparrot}) {
       # RISCV flow for RV64IMAC (ARIANE from PULP)
       # only recompile if necessary
       if (!$opt{precompiled}) {
@@ -2534,10 +2546,12 @@ sub parse_args
   $ENV{PITON_PICO}     = $opt{pico};
   $ENV{PITON_PICO_HET} = $opt{pico_het};
   $ENV{PITON_ARIANE}   = $opt{ariane};
+  $ENV{PITON_BLACKPARROT}   = $opt{blackparrot};
   push (@{$opt{config_rtl}}, "PITON_PICO")     if ($opt{pico});
   push (@{$opt{config_rtl}}, "PITON_PICO_HET") if ($opt{pico_het});
   push (@{$opt{config_rtl}}, "PITON_ARIANE")   if ($opt{ariane});
   push (@{$opt{config_rtl}}, "L2_CAM_MSHR")    if ($opt{ariane});
+  push (@{$opt{config_rtl}}, "PITON_BLACKPARROT")   if ($opt{blackparrot});
 
 
   if ($opt{pico} or $opt{pico_het}) {
@@ -2574,6 +2588,8 @@ sub parse_args
         push (@{$opt{config_rtl}}, "RTL_PICO" . $i);
     } elsif ($opt{ariane}) {
         push (@{$opt{config_rtl}}, "RTL_ARIANE" . $i);
+    } elsif {
+        push (@{$opt{config_rtl}}, "RTL_PARROT" . $i);
     } else {
         push (@{$opt{config_rtl}}, "RTL_SPARC" . $i);
     }

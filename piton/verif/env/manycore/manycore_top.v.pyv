@@ -479,15 +479,18 @@ system system(
 
 `ifndef PITON_PICO
 `ifndef PITON_ARIANE
+`ifndef PITON_BLACKPARROT
     sas_intf  sas_intf(/*AUTOINST*/
         // Inputs
         .clk       (`CHIP_INT_CLK),      // Templated
         .rst_l     (`SPARC_CORE0.reset_l));       // Templated
 `endif
 `endif
+`endif
 
 `ifndef PITON_PICO
 `ifndef PITON_ARIANE
+`ifndef PITON_BLACKPARROT
     // create sas tasks
     sas_tasks sas_tasks(/*AUTOINST*/
         // Inputs
@@ -495,12 +498,15 @@ system system(
         .rst_l        (`SPARC_CORE0.reset_l));       // Templated
 `endif
 `endif
+`endif
 
 `ifndef PITON_ARIANE
+`ifndef PITON_BLACKPARROT
     // sparc pipe flow monitor
     sparc_pipe_flow sparc_pipe_flow(/*AUTOINST*/
         // Inputs
         .clk  (`CHIP_INT_CLK));         // Templated
+`endif
 `endif
 
 `ifndef PITON_PICO_HET
