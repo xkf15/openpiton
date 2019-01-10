@@ -1008,8 +1008,8 @@ end else if (TILE_TYPE == `BLACKPARROT_TILE) begin : g_core
     );
 
     bp_top_piton core (
-        .clk            (clk_gated),
-        .reset          (rst_n_f),
+        .clk_i          (clk_gated),
+        .reset_l        (rst_n_f),
 
         .noc1_data_o    (processor_router_data_noc1),
         .noc1_v_o       (processor_router_valid_noc1),

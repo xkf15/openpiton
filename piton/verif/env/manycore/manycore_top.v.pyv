@@ -438,9 +438,11 @@ system system(
     tso_mon tso_mon(`CHIP_INT_CLK, `SPARC_CORE0.reset_l);
 
     // L15 MONITORS
+    `ifndef PITON_BLACKPARROT
     cmp_l15_messages_mon l15_messages_mon(
         .clk (`CHIP_INT_CLK)
         );
+    `endif
 
     // DMBR MONITOR
     dmbr_mon dmbr_mon (

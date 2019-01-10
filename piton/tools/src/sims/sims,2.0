@@ -2049,7 +2049,7 @@ sub assemble_diag
 
     # add path to blackparrot tests
     if ($opt{blackparrot}) {
-      push @{$opt{asm_diag_root}), "$ENV{PITON_ROOT}/piton/design/chip/tile/blackparrot/bp_be/tb/asm/isa"
+      push @{$opt{asm_diag_root}}, "$ENV{PITON_ROOT}/piton/design/chip/tile/blackparrot/bp_be/tb/asm/isa";
     }
 
     # find diagnostic
@@ -2554,7 +2554,7 @@ sub parse_args
   push (@{$opt{config_rtl}}, "PITON_BLACKPARROT")   if ($opt{blackparrot});
 
 
-  if ($opt{pico} or $opt{pico_het}) {
+  if ($opt{pico} or $opt{pico_het} or $opt{blackparrot}) {
     push (@{$opt{config_rtl}}, "NO_MRA_VAL") ;
     push (@{$opt{config_rtl}}, "NO_SLAM_RANDOM") ;
   }
@@ -2588,8 +2588,8 @@ sub parse_args
         push (@{$opt{config_rtl}}, "RTL_PICO" . $i);
     } elsif ($opt{ariane}) {
         push (@{$opt{config_rtl}}, "RTL_ARIANE" . $i);
-    } elsif {
-        push (@{$opt{config_rtl}}, "RTL_PARROT" . $i);
+    } elsif ($opt{blackparrot}) {
+        push (@{$opt{config_rtl}}, "RTL_BLACKPARROT" . $i);
     } else {
         push (@{$opt{config_rtl}}, "RTL_SPARC" . $i);
     }

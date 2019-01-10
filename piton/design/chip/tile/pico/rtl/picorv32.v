@@ -193,6 +193,7 @@ module picorv32 #(
 	wire [31:0] next_pc;
 
     reg        resetn;
+    reg [`L15_AMO_OP_WIDTH-1:0] instr_amo_op;
 
     always @ (posedge clk) begin
         if(!reset_l) begin
@@ -672,7 +673,6 @@ module picorv32 #(
 	reg instr_add, instr_sub, instr_sll, instr_slt, instr_sltu, instr_xor, instr_srl, instr_sra, instr_or, instr_and;
 	reg instr_rdcycle, instr_rdcycleh, instr_rdinstr, instr_rdinstrh, instr_ecall_ebreak;
 	reg instr_getq, instr_setq, instr_retirq, instr_maskirq, instr_waitirq, instr_timer;
-    reg [`L15_AMO_OP_WIDTH-1:0] instr_amo_op;
 	wire instr_trap;
 
 	reg [regindex_bits-1:0] decoded_rd, decoded_rs1, decoded_rs2;
