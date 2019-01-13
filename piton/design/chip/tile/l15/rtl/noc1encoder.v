@@ -121,7 +121,7 @@ begin
    // sending throttle for dmbr
    dmbr_stall = dmbr_l15_stall && (flit_state == 0); // let's not stall in the middle of a msg
    sending = (noc1buffer_noc1encoder_req_val || csm_noc1encoder_req_val) && !dmbr_stall;
-   noc1encoder_noc1out_val = sending;
+   noc1encoder_noc1out_val = sending & noc1out_ready;
 
 end
 
