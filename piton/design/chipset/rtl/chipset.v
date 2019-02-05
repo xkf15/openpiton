@@ -391,6 +391,8 @@ module chipset(
     // PLIC
     output  [`NUM_TILES*2-1:0]                  irq_o          // level sensitive IR lines, mip & sip (async)
 `endif
+    ,
+    input [31:0] eip
 
 );
 
@@ -1221,6 +1223,9 @@ chipset_impl_noc_power_test  chipset_impl (
         .ipi_o                  ( ipi_o         ),
         .irq_o                  ( irq_o         )
     `endif
+
+        ,
+        .eip (eip)
 );
 
 

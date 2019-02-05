@@ -151,6 +151,8 @@ module chip(
     // PLIC
     input   [`NUM_TILES*2-1:0]                  irq_i          // level sensitive IR lines, mip & sip (async)
 `endif
+    ,
+    output [31:0] eip
 );
 
 <%
@@ -1045,6 +1047,7 @@ module chip(
         .ipi_i               ( ipi_i[_FLAT_ID_]         ),
         .irq_i               ( irq_i[_FLAT_ID_*2 +: 2]  ),
     `endif
+        .eip                 ( eip                     ),
         // ucb from tiles to jtag
         .tile_jtag_ucb_val   ( tile0_jtag_ucb_val      ),
         .tile_jtag_ucb_data  ( tile0_jtag_ucb_data     ),
@@ -1119,6 +1122,8 @@ module chip(
                 currenttile = currenttile.replace("TYPE_OF_TILE", "`PICORV32_TILE")
             elif (PITON_ARIANE):
                 currenttile = currenttile.replace("TYPE_OF_TILE", "`ARIANE_RV64_TILE")
+            elif (PITON_AO486):
+                currenttile = currenttile.replace("TYPE_OF_TILE", "`AO486_TILE")
             else:
                 currenttile = currenttile.replace("TYPE_OF_TILE", "`SPARC_TILE")
 

@@ -395,6 +395,8 @@ wire  [`NUM_TILES*2-1:0] irq;         // level sensitive IR lines, mip & sip (as
 
 `endif
 
+wire  [31:0]                  eip;
+
 //////////////////////
 // Sequential Logic //
 //////////////////////
@@ -615,6 +617,8 @@ chip chip(
     // PLIC
     .irq_i                          ( irq                        )  // level sensitive IR lines, mip & sip (async)
 `endif
+    ,
+    .eip (eip)
 );
 
 
@@ -921,6 +925,8 @@ chipset chipset(
     // PLIC
     .irq_o                          ( irq                        )  // level sensitive IR lines, mip & sip (async)
 `endif
+    ,
+    .eip (eip)
 
 );
 

@@ -261,6 +261,27 @@ endtask // get_thread_status
                     spc0_inst_done <= `PICO_CORE0.launch_next_insn;
                     spc0_phy_pc_w <= {{16{`PICO_CORE0.reg_pc[31]}}, `PICO_CORE0.reg_pc[31:0]};
                 end
+        `else // RTL_PICO0
+        `ifdef RTL_AO4860
+                assign spc0_thread_id = 2'b00;
+                assign spc0_rtl_pc = spc0_phy_pc_w;
+
+                always @*
+                begin
+                    if (`AO486_CORE0.ao486_int == 1'b1)
+                    begin
+                        active_thread[(0*4)] = 1'b1;
+                        active_thread[(0*4)+1] = 1'b1;
+                        active_thread[(0*4)+2] = 1'b1;
+                        active_thread[(0*4)+3] = 1'b1;
+                    end
+                end
+
+                always @(posedge clk) begin
+                    spc0_inst_done <= 1'b1; //`AO486_CORE0.launch_next_insn;
+                    spc0_phy_pc_w <= {{16{`AO486_CORE0.eip[31]}}, `AO486_CORE0.eip[31:0]};
+                end
+        `endif // RTL_AO4860
         `endif // RTL_PICO0
         `endif // RTL_ARIANE0
         `endif // RTL_SPARC0

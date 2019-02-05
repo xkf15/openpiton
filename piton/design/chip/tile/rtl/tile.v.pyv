@@ -179,6 +179,8 @@ print s
     // PLIC
     input   [1:0]                       irq_i          // level sensitive IR lines, mip & sip (async)
 `endif
+    ,
+    output [31:0] eip
 );
     // clock gating
     wire clk_gated;
@@ -999,8 +1001,152 @@ print("        .DmBaseAddress ( 64'h%s         )" % dmBase)
     assign unavailable_o = 1'b0;
 
 `endif
-  end
-  endgenerate
+end else if (TILE_TYPE == `AO486_TILE) begin : g_core
+    wire [29:0]                    ao486_transducer_mem_address;
+    wire [31:0]                    ao486_transducer_mem_writedata;
+    wire [ 3:0]                    ao486_transducer_mem_byteenable;
+    wire [ 2:0]                    ao486_transducer_mem_burstcount;
+    wire                           ao486_transducer_mem_write;
+    wire                           ao486_transducer_mem_read;
+
+    wire                           transducer_ao486_mem_waitrequest;
+    wire                           transducer_ao486_mem_readdatavalid;
+    wire [31:0]                    transducer_ao486_mem_readdata;
+
+    wire [15:0]                    ao486_transducer_io_address;
+    wire [ 3:0]                    ao486_transducer_io_byteenable;
+
+    wire                           ao486_transducer_io_read;
+    wire                           transducer_ao486_io_readdatavalid;
+    wire [31:0]                    transducer_ao486_io_readdata;
+
+    wire                           ao486_transducer_io_write;
+    wire [31:0]                    ao486_transducer_io_writedata;
+
+    wire                           transducer_ao486_io_waitrequest;
+
+    wire        ao486_int;
+    wire [31:0] eip;
+
+    pico_reset pico_reset(
+        .gclk(clk_gated),
+        .rst_n(rst_n_f),
+        .spc_grst_l(spc_grst_l)
+    );
+
+    reg ao486_rst_n;
+
+    always @ (posedge clk) begin
+        if(!rst_n_f) begin
+            ao486_rst_n <= 1'b0;
+        end
+        else if (ao486_int) begin
+            ao486_rst_n <= 1'b1;
+        end
+    end
+
+    ao486 core (
+        .clk                        (clk_gated),
+        .rst_n                      (ao486_rst_n),
+
+        .a20_enable                 (1'b1),
+
+        // Interrupts
+        .interrupt_do               (1'b0),
+        .interrupt_vector           (8'b0),
+        .interrupt_done             (),
+
+        // Avalon memory bus
+        .avm_address                (ao486_transducer_mem_address),
+        .avm_writedata              (ao486_transducer_mem_writedata),
+        .avm_byteenable             (ao486_transducer_mem_byteenable),
+        .avm_burstcount             (ao486_transducer_mem_burstcount),
+        .avm_write                  (ao486_transducer_mem_write),
+        .avm_read                   (ao486_transducer_mem_read),
+
+        .avm_waitrequest            (transducer_ao486_mem_waitrequest),
+        .avm_readdatavalid          (transducer_ao486_mem_readdatavalid),
+        .avm_readdata               (transducer_ao486_mem_readdata),
+
+        // Avalon io bus
+        .avalon_io_address          (ao486_transducer_io_address),
+        .avalon_io_byteenable       (ao486_transducer_io_byteenable),
+
+        .avalon_io_read             (ao486_transducer_io_read),
+        .avalon_io_readdatavalid    (transducer_ao486_io_readdatavalid),
+        .avalon_io_readdata         (transducer_ao486_io_readdata),
+
+        .avalon_io_write            (ao486_transducer_io_write),
+        .avalon_io_writedata        (ao486_transducer_io_writedata),
+
+        .avalon_io_waitrequest      (transducer_ao486_io_waitrequest),
+
+        .eip                        (eip)
+    );
+
+    ao486_l15_transducer ao486_l15_transducer(
+        .clk                                (clk),
+        .rst_n                              (rst_n),
+
+        // Avalon memory bus
+        .ao486_transducer_mem_address       (ao486_transducer_mem_address),
+        .ao486_transducer_mem_writedata     (ao486_transducer_mem_writedata),
+        .ao486_transducer_mem_byteenable    (ao486_transducer_mem_byteenable),
+        .ao486_transducer_mem_burstcount    (ao486_transducer_mem_burstcount),
+        .ao486_transducer_mem_write         (ao486_transducer_mem_write),
+        .ao486_transducer_mem_read          (ao486_transducer_mem_read),
+
+        .transducer_ao486_mem_waitrequest   (transducer_ao486_mem_waitrequest),
+        .transducer_ao486_mem_readdatavalid (transducer_ao486_mem_readdatavalid),
+        .transducer_ao486_mem_readdata      (transducer_ao486_mem_readdata),
+
+        // Avalon io bus
+        .ao486_transducer_io_address        (ao486_transducer_io_address),
+        .ao486_transducer_io_byteenable     (ao486_transducer_io_byteenable),
+
+        .ao486_transducer_io_read           (ao486_transducer_io_read),
+        .transducer_ao486_io_readdatavalid  (transducer_ao486_io_readdatavalid),
+        .transducer_ao486_io_readdata       (transducer_ao486_io_readdata),
+
+        .ao486_transducer_io_write          (ao486_transducer_io_write),
+        .ao486_transducer_io_writedata      (ao486_transducer_io_writedata),
+
+        .transducer_ao486_io_waitrequest    (transducer_ao486_io_waitrequest),
+
+        // L1.5 interface
+        .l15_transducer_ack                 (l15_transducer_ack),
+        .l15_transducer_header_ack          (l15_transducer_header_ack),
+
+        .transducer_l15_rqtype              (transducer_l15_rqtype),
+        .transducer_l15_amo_op              (transducer_l15_amo_op),
+        .transducer_l15_size                (transducer_l15_size),
+        .transducer_l15_val                 (transducer_l15_val),
+        .transducer_l15_address             (transducer_l15_address),
+        .transducer_l15_data                (transducer_l15_data),
+
+        .transducer_l15_nc                  (transducer_l15_nc),
+        .transducer_l15_threadid            (transducer_l15_threadid),
+        .transducer_l15_prefetch            (transducer_l15_prefetch),
+        .transducer_l15_blockstore          (transducer_l15_blockstore),
+        .transducer_l15_blockinitstore      (transducer_l15_blockinitstore),
+        .transducer_l15_l1rplway            (transducer_l15_l1rplway),
+        .transducer_l15_invalidate_cacheline(transducer_l15_invalidate_cacheline),
+        .transducer_l15_csm_data            (transducer_l15_csm_data),
+        .transducer_l15_data_next_entry     (transducer_l15_data_next_entry),
+
+        .l15_transducer_val                 (l15_transducer_val),
+        .l15_transducer_returntype          (l15_transducer_returntype),
+
+        .l15_transducer_data_0              (l15_transducer_data_0),
+        .l15_transducer_data_1              (l15_transducer_data_1),
+
+
+        .transducer_l15_req_ack             (transducer_l15_req_ack),
+        .ao486_int                          (ao486_int)
+    );
+
+end
+endgenerate
 
 
     //////////

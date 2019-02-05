@@ -197,6 +197,8 @@ module chipset_impl(
     // PLIC
     output [`NUM_TILES*2-1:0]                   irq_o          // level sensitive IR lines, mip & sip (async)
 `endif
+    ,
+    input [31:0] eip
 );
 
 ///////////////////////
@@ -857,6 +859,10 @@ ciop_fake_iob ciop_fake_iob(
           .spc0_inst_done    ( `ARIANE_CORE0.piton_pc_vld   ),
           .pc_w0             ( `ARIANE_CORE0.piton_pc[48:0] ),
         `endif
+        `ifdef RTL_AO4860
+          .spc0_inst_done    (1'b1),
+          .pc_w0             ({17'b0, eip}),
+        `endif
         '''
 
         for i in range (NUM_TILES): # extend this later
@@ -867,6 +873,7 @@ ciop_fake_iob ciop_fake_iob(
             text2 = text2.replace("RTL_ARIANE0", "RTL_ARIANE" + `i`);
             text2 = text2.replace("RTL_SPARC0", "RTL_SPARC" + `i`);
             text2 = text2.replace("RTL_PICO0", "RTL_PICO" + `i`);
+            text2 = text2.replace("RTL_AO4860", "RTL_AO486" + `i`);
             text2 = text2.replace("spc0_inst_done", "spc" + `i` + "_inst_done");
             text2 = text2.replace("pc_w0", "pc_w" + `i`);
             text2 = text2.replace("PCPATH0", "PCPATH" + `i`);

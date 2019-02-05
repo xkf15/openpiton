@@ -174,6 +174,7 @@ Getopt::Long::Configure ('no_auto_abbrev') ;
         'ariane' => 0,
         'pico' => 0,
         'pico_het' => 0,
+        'ao486' => 0,
         'post_process_cmd' => [],
         'pre_process_cmd' => [],
         'reg_count' => 0,
@@ -317,6 +318,7 @@ GetOptions (\%opt,
             'ariane!',
             'pico!',
             'pico_het!',
+            'ao486!',
             'regress!',
             'regress_id=s',
             'report!',
@@ -1071,6 +1073,8 @@ sub gen_flist
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tinyoram/rtl/Flist.oram") if ($opt{oram}) ;
   # Add Ariane flist if -ariane is specified
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tile/ariane/Flist.ariane") if ($opt{ariane}) ;
+  # Add ao486 flist if -ao486 is specified
+  push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tile/ao486/rtl/ao486/Flist.ao486") if ($opt{ao486}) ;
 
 
   foreach my $flist (@{$opt{flist}}) {
@@ -2541,13 +2545,15 @@ sub parse_args
   $ENV{PITON_PICO}     = $opt{pico};
   $ENV{PITON_PICO_HET} = $opt{pico_het};
   $ENV{PITON_ARIANE}   = $opt{ariane};
+  $ENV{PITON_AO486}    = $opt{ao486};
   push (@{$opt{config_rtl}}, "PITON_PICO")     if ($opt{pico});
   push (@{$opt{config_rtl}}, "PITON_PICO_HET") if ($opt{pico_het});
   push (@{$opt{config_rtl}}, "PITON_ARIANE")   if ($opt{ariane});
+  push (@{$opt{config_rtl}}, "PITON_AO486")    if ($opt{ao486});
   push (@{$opt{config_rtl}}, "L2_CAM_MSHR")    if ($opt{ariane});
 
 
-  if ($opt{pico} or $opt{pico_het}) {
+  if ($opt{pico} or $opt{pico_het} or $opt{ao486}) {
     push (@{$opt{config_rtl}}, "NO_MRA_VAL") ;
     push (@{$opt{config_rtl}}, "NO_SLAM_RANDOM") ;
   }
@@ -2581,6 +2587,8 @@ sub parse_args
         push (@{$opt{config_rtl}}, "RTL_PICO" . $i);
     } elsif ($opt{ariane}) {
         push (@{$opt{config_rtl}}, "RTL_ARIANE" . $i);
+    } elsif ($opt{ao486}) {
+        push (@{$opt{config_rtl}}, "RTL_AO486" . $i);
     } else {
         push (@{$opt{config_rtl}}, "RTL_SPARC" . $i);
     }
