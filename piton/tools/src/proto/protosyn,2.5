@@ -71,6 +71,7 @@ def usage():
     print >> sys.stderr, "                  pico      (32bit RISCV core)"
     print >> sys.stderr, "                  pico_het  (heterogeneous pico+sparc arrangement)"
     print >> sys.stderr, "                  ariane    (64bit RISCV core)"
+    print >> sys.stderr, "                  anycore   (64bit RISCV core)"
     print >> sys.stderr, "\n       --network_config <network_config>"
     print >> sys.stderr, "              Name of the network type to be used:"
     print >> sys.stderr, "                  2dmesh_config (default)"
@@ -657,6 +658,13 @@ def main():
             os.environ['RTL_ARIANE' + str(i)] = "1"
             print_info('defining RTL_ARIANE' + str(i))
 
+    elif options.core == 'anycore':
+        os.environ['PITON_ANYCORE'] = "1"
+
+        for i in range(int(options.num_tiles)):
+            os.environ['RTL_ANYCORE' + str(i)] = "1"
+            print_info('defining RTL_ANYCORE' + str(i))
+
     elif options.core == 'sparc':
         # this is the default
         for i in range(int(options.num_tiles)):
@@ -723,6 +731,9 @@ def main():
 
         if options.core == 'ariane':
             config + ' -ariane'
+
+        if options.core == 'anycore':
+            config + ' -anycore'
 
         print_info("Synthesizing a test: %s" % options.test_name)
         print_info("Compilation started")

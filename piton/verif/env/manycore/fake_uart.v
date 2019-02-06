@@ -47,12 +47,14 @@ wire                        m_axi_wvalid;
 integer file;
 
 initial begin
-    file = $fopen("fake_uart.log");
+    file = $fopen("fake_uart.log", "w");
 end
 
 always @(posedge clk) begin
     if (m_axi_awvalid & m_axi_wvalid & (m_axi_awaddr[2:0] == 3'b0)) begin
+        $display("FAKE UART OUTPUT: %c", m_axi_wdata[7:0]);
         $fwrite(file, "%c", m_axi_wdata);
+        $fflush(file);
     end
 end
 

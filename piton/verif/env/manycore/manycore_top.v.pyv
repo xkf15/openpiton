@@ -37,6 +37,19 @@
 `timescale 1ps/1ps
 module cmp_top ();
 
+//`ifdef PITON_ANYCORE
+//import "DPI-C" context task initializeSim();
+//import "DPI-C" function int get_logging_mode();
+//import "DPI-C" function longint getArchRegValue(int reg_id);
+//import "DPI-C" function longint getArchPC();
+//import "DPI-C" function int checkInstruction(longint v_cycle,longint v_commit,longint v_pc, int v_dest, longint v_dest_value, int is_fission );
+////import "DPI-C" function void testing();
+//import "DPI-C" function void set_pcr(int which_csr, longint value);
+//import "DPI-C" function longint get_pcr(int which_csr);
+//import "DPI-C" context task htif_tick(output int htif_return);
+//import "DPI-C" function int virt_to_phys(longint virt_addr, int bytes, int store_access, int fetch_access, output int exception);
+//`endif
+
 //////////////////////
 // Type Declarations
 //////////////////////
@@ -479,20 +492,24 @@ system system(
 
 `ifndef PITON_PICO
 `ifndef PITON_ARIANE
+`ifndef PITON_ANYCORE
     sas_intf  sas_intf(/*AUTOINST*/
         // Inputs
         .clk       (`CHIP_INT_CLK),      // Templated
         .rst_l     (`SPARC_CORE0.reset_l));       // Templated
 `endif
 `endif
+`endif
 
 `ifndef PITON_PICO
 `ifndef PITON_ARIANE
+`ifndef PITON_ANYCORE
     // create sas tasks
     sas_tasks sas_tasks(/*AUTOINST*/
         // Inputs
         .clk      (`CHIP_INT_CLK),      // Templated
         .rst_l        (`SPARC_CORE0.reset_l));       // Templated
+`endif
 `endif
 `endif
 

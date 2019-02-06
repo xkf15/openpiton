@@ -61,6 +61,7 @@ if NUM_TILES == -1:
 PITON_ARIANE   = int(os.environ.get('PITON_ARIANE', '0'))
 PITON_PICO     = int(os.environ.get('PITON_PICO', '0'))
 PITON_PICO_HET = int(os.environ.get('PITON_PICO_HET', '0'))
+PITON_ANYCORE  = int(os.environ.get('PITON_ANYCORE', '0'))
 
 if PITON_ARIANE or PITON_PICO:
     NUM_THREADS = NUM_TILES

@@ -127,6 +127,7 @@ Getopt::Long::Configure ('no_auto_abbrev') ;
 
 %opt = (
         'alias' => "",
+        'anycore' => 0,
         'asm_diag_name' => "",
         'asm_diag_path' => "",
         'asm_diag_root' => [],
@@ -307,6 +308,7 @@ if (($opt{injobq} == 1) or $opt{interactive}) {
 
 GetOptions (\%opt,
             'alias=s',
+            'anycore!',
             'config_cpp_args=s@',
             'debug' => \$opt_debug,
             'diaglist=s',
@@ -1071,6 +1073,8 @@ sub gen_flist
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tinyoram/rtl/Flist.oram") if ($opt{oram}) ;
   # Add Ariane flist if -ariane is specified
   push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tile/ariane/Flist.ariane") if ($opt{ariane}) ;
+  # Add AnyCore flist if -anycore is specified
+  push (@{$opt{flist}}, "$ENV{DV_ROOT}/design/chip/tile/anycore/flist") if ($opt{anycore}) ;
 
 
   foreach my $flist (@{$opt{flist}}) {
@@ -2047,8 +2051,8 @@ sub assemble_diag
     if ($opt{asm_diag_name} =~ /\.pal/)        { $diag_name = "diag.pal"  ; }
     elsif ($opt{asm_diag_name} =~ /\.s\.gz/)   { $diag_name = "diag.s.gz" ; }
     elsif ($opt{precompiled} and $opt{ariane}) { $diag_name = "diag.exe"  ; }
-    elsif (($opt{pico} | $opt{ariane}) and ($opt{asm_diag_name} =~ /\.S/)) { $diag_name = "diag.S" ; }
-    elsif (($opt{pico} | $opt{ariane}) and ($opt{asm_diag_name} =~ /\.c/)) { $diag_name = "diag.c" ; }
+    elsif (($opt{pico} | $opt{ariane} | $opt{anycore}) and ($opt{asm_diag_name} =~ /\.S/)) { $diag_name = "diag.S" ; }
+    elsif (($opt{pico} | $opt{ariane} | $opt{anycore}) and ($opt{asm_diag_name} =~ /\.c/)) { $diag_name = "diag.c" ; }
     else { $diag_name = "diag.s" ; }
 
     # copy diagnostic to run area
@@ -2099,8 +2103,9 @@ sub assemble_diag
       my $waitstatus = call_program($cmd, "rv32_as.log");
       die ("DIE. rv32_as compilation error") if ($waitstatus) ;
 
-    } elsif ($opt{ariane}) {
-      # RISCV flow for RV64IMAC (ARIANE from PULP)
+    } elsif ($opt{ariane} or $opt{anycore}) {
+      # RISCV flow for RV64IMAC (ARIANE from PULP
+      # (and AnyCore from NCSU)
       # only recompile if necessary
       if (!$opt{precompiled}) {
         print "$prg: assembling 64bit riscv diag (RV64IMAC)\n" ;
@@ -2541,13 +2546,17 @@ sub parse_args
   $ENV{PITON_PICO}     = $opt{pico};
   $ENV{PITON_PICO_HET} = $opt{pico_het};
   $ENV{PITON_ARIANE}   = $opt{ariane};
+  $ENV{PITON_ANYCORE}  = $opt{anycore};
   push (@{$opt{config_rtl}}, "PITON_PICO")     if ($opt{pico});
   push (@{$opt{config_rtl}}, "PITON_PICO_HET") if ($opt{pico_het});
   push (@{$opt{config_rtl}}, "PITON_ARIANE")   if ($opt{ariane});
   push (@{$opt{config_rtl}}, "L2_CAM_MSHR")    if ($opt{ariane});
+  push (@{$opt{config_rtl}}, "PITON_ANYCORE")  if ($opt{anycore});
+  push (@{$opt{config_rtl}}, "SIM")  if ($opt{anycore});
+  push (@{$opt{sim_build_args}}, "-sverilog")  if ($opt{anycore});
 
 
-  if ($opt{pico} or $opt{pico_het}) {
+  if ($opt{pico} or $opt{pico_het} or $opt{anycore}) {
     push (@{$opt{config_rtl}}, "NO_MRA_VAL") ;
     push (@{$opt{config_rtl}}, "NO_SLAM_RANDOM") ;
   }
@@ -2581,6 +2590,8 @@ sub parse_args
         push (@{$opt{config_rtl}}, "RTL_PICO" . $i);
     } elsif ($opt{ariane}) {
         push (@{$opt{config_rtl}}, "RTL_ARIANE" . $i);
+    } elsif ($opt{anycore}) {
+        push (@{$opt{config_rtl}}, "RTL_ANYCORE" . $i);
     } else {
         push (@{$opt{config_rtl}}, "RTL_SPARC" . $i);
     }
