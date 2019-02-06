@@ -101,7 +101,7 @@
 
 module generic_dpram(
 	// Generic synchronous dual-port RAM interface
-	rclk, rrst, rce, oe, raddr, do,
+	rclk, rrst, rce, oe, raddr, datao,
 	wclk, wrst, wce, we, waddr, di
 );
 
@@ -120,7 +120,7 @@ module generic_dpram(
 	input           rce;   // read port chip enable, active high
 	input           oe;	   // output enable, active high
 	input  [aw-1:0] raddr; // read address
-	output [dw-1:0] do;    // data output
+	output [dw-1:0] datao;    // data output
 
 	// write port
 	input          wclk;  // write clock, rising edge trigger
@@ -149,7 +149,7 @@ module generic_dpram(
 	  if (rce)
 	    ra <= raddr;
 
-	assign do = mem[ra];
+	assign datao = mem[ra];
 
 	// write operation
 	always@(posedge wclk)
@@ -172,7 +172,7 @@ module generic_dpram(
 		.ADDRA(raddr),
 		.DIA( {dw{1'b0}} ),
 		.WEA(1'b0),
-		.DOA(do),
+		.DOA(datao),
 
 		// write port
 		.CLKB(wclk),
@@ -201,7 +201,7 @@ module generic_dpram(
 		.rdclock(rclk),
 		.rdclocken(rce),
 		.rdaddress(raddr),
-		.q(do),
+		.q(datao),
 
 		// write port
 		.wrclock(wclk),
@@ -226,7 +226,7 @@ module generic_dpram(
 	//
 	art_hsdp #(dw, 1<<aw, aw) artisan_sdp(
 		// read port
-		.qa(do),
+		.qa(datao),
 		.clka(rclk),
 		.cena(~rce),
 		.wena(1'b1),
@@ -262,7 +262,7 @@ module generic_dpram(
 		.ra(raddr),
 		.wa(waddr),
 		.di(di),
-		.do(do)
+		.do(datao)
 	);
 
 `else
@@ -282,7 +282,7 @@ module generic_dpram(
 		.DA( {dw{1'b0}} ),
 		.WEA(1'b0),
 		.OEA(oe),
-		.QA(do),
+		.QA(datao),
 
 		// write port
 		.CLKB(wclk),
@@ -304,17 +304,17 @@ module generic_dpram(
 	// Generic RAM's registers and wires
 	//
 	reg	[dw-1:0]	mem [(1<<aw)-1:0]; // RAM content
-	reg	[dw-1:0]	do_reg;            // RAM data output register
+	reg	[dw-1:0]	datao_reg;            // RAM data output register
 
 	//
 	// Data output drivers
 	//
-	assign do = (oe & rce) ? do_reg : {dw{1'bz}};
+	assign datao = (oe & rce) ? datao_reg : {dw{1'bz}};
 
 	// read operation
 	always @(posedge rclk)
 		if (rce)
-          		do_reg <= (we && (waddr==raddr)) ? {dw{1'b x}} : mem[raddr];
+          		datao_reg <= (we && (waddr==raddr)) ? {dw{1'b x}} : mem[raddr];
 
 	// write operation
 	always @(posedge wclk)
