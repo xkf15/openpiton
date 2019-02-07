@@ -195,6 +195,15 @@ begin
         $init_jbus_model("mem.image", 0);
     end
 
+`ifdef __ICARUS__
+    if ($test$plusargs("vcd"))
+    begin
+        $dumpfile("myvcd.vcd");
+        $dumpall();
+        $dumpvars(1, cmp_top.system.chip.tile0);
+        $dumpvars(1, cmp_top.system.chip.tile0.g_core);
+    end
+`endif
 
     // Reset PLL for 100 cycles
     repeat(100)@(posedge core_ref_clk);
