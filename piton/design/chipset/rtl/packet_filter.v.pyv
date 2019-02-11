@@ -348,26 +348,24 @@ for i in range(1, len(devices)):
             invalid_access_q  <= 1'b0;
             flit_buffer_0_reg <= `NOC_DATA_WIDTH'd0;
             flit_buffer_1_reg <= `NOC_DATA_WIDTH'd0;
-
             num_flits_reg     <= `MSG_LENGTH_WIDTH'd0;
             flits_sent_reg    <= `MSG_LENGTH_WIDTH'd0;
-
             state_reg         <= IDLE;
         end
         else
         begin
       			invalid_access_q  <= invalid_access_d;
-      			if (invalid_access_d) begin
-      				$fatal(1,"Access to invalid address in packet filter");
-      			end
-
 			      flit_buffer_0_reg <= flit_buffer_0_next;
             flit_buffer_1_reg <= flit_buffer_1_next;
+            num_flits_reg     <= num_flits_next;
+            flits_sent_reg    <= flits_sent_next;
+            state_reg         <= state_next;
 
-            num_flits_reg <= num_flits_next;
-            flits_sent_reg <= flits_sent_next;
-
-            state_reg <= state_next;
+`ifdef MONITOR_INVALID_ACCESSES
+            if (invalid_access_d) begin
+              $error("Access to invalid address in packet filter: 0x%016X", noc2_filter_data[`MSG_ADDR_]);
+            end
+`endif            
         end
     end
 
