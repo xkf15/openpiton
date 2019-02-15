@@ -165,7 +165,8 @@ assign transducer_l15_rqtype =  ao486_transducer_mem_write ? `STORE_RQ :
                                 5'b0;
 assign transducer_l15_amo_op = `L15_AMO_OP_NONE;
 assign transducer_l15_size = req_size;
-assign transducer_l15_address = {{8{ao486_transducer_mem_address[29]}}, ao486_transducer_mem_address, 2'b0};
+//assign transducer_l15_address = {{8{ao486_transducer_mem_address[29]}}, ao486_transducer_mem_address, 2'b0};
+assign transducer_l15_address = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0};
 assign transducer_l15_data = {ao486_mem_wdata_flipped, ao486_mem_wdata_flipped};
 assign transducer_l15_nc = ao486_transducer_mem_address[29];
 
