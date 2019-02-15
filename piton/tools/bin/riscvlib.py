@@ -28,16 +28,16 @@ def regFmt(addrBase, addrLen, addrCells, sizeCells):
     tmpStr = " "
     
     if addrCells >= 2:
-        tmpStr += "0x%08X " % (addrBase >> 32)
+        tmpStr += "0x%08x " % (addrBase >> 32)
     
     if addrCells >= 1:
-        tmpStr += "0x%08X " % (addrBase & 0xFFFFFFFF)
+        tmpStr += "0x%08x " % (addrBase & 0xFFFFFFFF)
     
     if sizeCells >= 2:
-        tmpStr += "0x%08X " % (addrLen >> 32)
+        tmpStr += "0x%08x " % (addrLen >> 32)
     
     if sizeCells >= 1:
-        tmpStr += "0x%08X " % (addrLen & 0xFFFFFFFF)
+        tmpStr += "0x%08x " % (addrLen & 0xFFFFFFFF)
             
     return tmpStr
 
