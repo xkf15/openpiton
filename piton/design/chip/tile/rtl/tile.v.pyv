@@ -39,7 +39,7 @@ if PITON_ARIANE:
   if 'CONFIG_SYS_FREQ' in os.environ:
     sysFreq = int(os.environ['CONFIG_SYS_FREQ'])
 
-  gen_riscv_dts(devices, X_TILES*Y_TILES, sysFreq, sysFreq/128, sysFreq, os.environ['ARIANE_ROOT']+"/openpiton/bootrom/")
+  gen_riscv_dts(devices, X_TILES*Y_TILES, sysFreq, sysFreq/128, sysFreq, os.environ['ARIANE_ROOT']+"/fpga/src/bootrom/")
 
 %>
 
