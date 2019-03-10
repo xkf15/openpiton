@@ -1,0 +1,40 @@
+CAPI=2:
+name: openpiton::chipset:0.1
+description: OpenPiton Tile
+
+filesets:
+    rtl:
+        files:
+            - chipset.v
+        depend:
+            - openpiton::piton_chipset_include
+            - openpiton::fpga_bridge
+            - openpiton::noc_axilite_bridge
+            - openpiton::io_xbar
+        file_type: verilogSource-2001
+
+targets:
+    default:
+        filesets: [rtl]
+        generate: [pyhp_preprocess]
+    pickle:
+        default_tool: icarus
+        filesets: [rtl]
+        generate: [pyhp_preprocess]
+        toplevel: [chipset]
+        tools:
+            icarus:
+                iverilog_options: [-g 2001 -E]
+    verify:
+        default_tool: icarus
+        filesets: [rtl]
+        generate: [pyhp_preprocess]
+        toplevel: [chipset]
+        tools:
+            icarus:
+                iverilog_options: [-g 2001]
+generate:
+    pyhp_preprocess:
+        generator: pyhp_preprocess_gen
+        parameters:
+            process_me : [[chipset_impl.v.pyv, chipset_impl.tmp.v], [packet_filter.v.pyv, packet_filter.tmp.v]]
