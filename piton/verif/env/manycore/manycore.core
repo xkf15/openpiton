@@ -7,6 +7,7 @@ filesets:
         depend:
             - openpiton::piton_include
             - openpiton::piton_chipset_include
+            - openpiton::system
         files:
             - cmp_pcxandcpx.v
             - exu_mon.v
@@ -26,39 +27,28 @@ filesets:
             - thrfsm_mon.v
             - tlu_mon.v
             - fake_uart.v
+            - ../common/fake_mem_ctrl.v
         file_type: verilogSource-2001
-
-parameters:
-    test_cases_path:
-        datatype: str
-        description: Path to test cases
-        paramtype: plusarg
-    test_case:
-        datatype: str
-        description: Specific test case to run
-        paramtype: plusarg
-
-    VERBOSITY:
-        datatype: str
-        description: verbosity level
-        paramtype: vlogdefine
 
 targets:
     sim:
         default_tool: icarus
         filesets: [tb_files]
         generate: [pyhp_preprocess]
-        toplevel: [system]
-        parameters: [test_cases_path, test_case, VERBOSITY]
+        toplevel: [cmp_top]
         tools:
             icarus:
-                iverilog_options: [-g 2001]
+                iverilog_options: [-g 2001 -DRTL_SPARC0 -DNO_SCAN -DUSE_FAKE_IOS -DUSE_FAKE_PLL_AND_CLKMUX]
+            vcs:
+                vcs_options: [-timescale=1ps/1ps -L/tigress/jbalkind/piton/piton/tools/Linux/x86_64/lib -lnsl -V -lm -lc +rad -lsocket_pli -lutility_pli -liob -lmem_pli -P /tigress/jbalkind/piton/piton/tools/pli/utility/bwutility_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/mem/bwmem_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/socket/bwsocket_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/iop/bwioj.tab -Xstrict=1 -notice +nospecify +warn=all -l compile.log]
                 
 generate:
     pyhp_preprocess:
         generator: pyhp_preprocess_gen
         parameters:
-            process_me : [[async_fifo_mon.v.pyv, async_fifo_mon.tmp.v],
+            process_me : [[cross_module.h.pyv, cross_module.tmp.h],
+                          [manycore_top.v.pyv, manycore_top.tmp.v],
+                          [async_fifo_mon.v.pyv, async_fifo_mon.tmp.v],
                           [ciop_iob.v.pyv, ciop_iob.tmp.v],
                           [cmp_l15_messages_mon.v.pyv, cmp_l15_messages_mon.tmp.v],
                           [dmbr_mon.v.pyv, dmbr_mon.tmp.v],
@@ -67,7 +57,6 @@ generate:
                           [lsu_mon.v.pyv, lsu_mon.tmp.v],
                           [lsu_mon2.v.pyv, lsu_mon2.tmp.v],
                           [manycore_network_mon.v.pyv, manycore_network_mon.tmp.v],
-                          [manycore_top.v.pyv, manycore_top.tmp.v],
                           [monitor.v.pyv, monitor.tmp.v],
                           [multicycle_mon.v.pyv, multicycle_mon.tmp.v],
                           [pc_cmp.v.pyv, pc_cmp.tmp.v],

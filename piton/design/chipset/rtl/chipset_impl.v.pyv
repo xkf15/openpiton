@@ -861,6 +861,7 @@ eth_top eth_top (
 assign net_interrupt  = 1'b0;
 assign uart_interrupt = 1'b0;
 
+`include "cross_module.tmp.h"
 // Fake iobridge
 // Tie noc1 input low because it's unused
 assign intf_chipset_rdy_noc1 = 1'b0;

@@ -1,6 +1,6 @@
 CAPI=2:
 name: openpiton::system:0.1
-description: OpenPiton Tile
+description: OpenPiton System
 
 filesets:
     rtl:
