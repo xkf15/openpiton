@@ -38,9 +38,9 @@ targets:
         toplevel: [cmp_top]
         tools:
             icarus:
-                iverilog_options: [-g 2001 -DRTL_SPARC0 -DNO_SCAN -DUSE_FAKE_IOS -DUSE_FAKE_PLL_AND_CLKMUX]
+                iverilog_options: [-g 2001]
             vcs:
-                vcs_options: [-timescale=1ps/1ps -L/tigress/jbalkind/piton/piton/tools/Linux/x86_64/lib -lnsl -V -lm -lc +rad -lsocket_pli -lutility_pli -liob -lmem_pli -P /tigress/jbalkind/piton/piton/tools/pli/utility/bwutility_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/mem/bwmem_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/socket/bwsocket_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/iop/bwioj.tab -Xstrict=1 -notice +nospecify +warn=all -l compile.log]
+                vcs_options: [-timescale=1ps/1ps -P /tigress/jbalkind/piton/piton/tools/pli/utility/bwutility_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/mem/bwmem_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/socket/bwsocket_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/iop/bwioj.tab]
                 
 generate:
     pyhp_preprocess:
