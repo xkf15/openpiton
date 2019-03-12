@@ -125,9 +125,9 @@ export PATH="$NEWPATH:$PATH"
 
 # Set a couple of paths for MacOS
 OS=`uname -s`
+CPU=`uname -m`
 if [ $OS = "Darwin" ]
 then
-CPU=`uname -m`
 export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$DV_ROOT/tools/$OS/$CPU/lib
 export M4PATH=$DV_ROOT/tools/$OS/$CPU/lib/m4
 fi
