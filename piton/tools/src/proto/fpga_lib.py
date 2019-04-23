@@ -205,7 +205,7 @@ def getTestList(fname, flog, ustr_files=False):
     f = open(fname, 'r')
 
     test_list = list()
-    suff = "ustr" if ustr_files else "[s|S|c]"
+    suff = "ustr" if ustr_files else "([s|S|c]|riscv)"
     for line in f:
         mstr = "([0-9a-zA-Z_-]+\.%s)" % suff
         m = re.search(mstr, line)
@@ -224,7 +224,7 @@ def getTestList(fname, flog, ustr_files=False):
 # Output:   rv              - return value from midas
 # Description: compile assebly test using midas tool
 ############################################################################
-def runMidas(tname, uart_div_latch, flog, midas_args=None, coreType="sparc"):
+def runMidas(tname, uart_div_latch, flog, midas_args=None, coreType="sparc", precompiled=False, x_tiles=1, y_tiles=1):
     cmd = ""
     if midas_args is None:
         cmd = "sims -sys=manycore -novcs_build -midas_only \
@@ -235,12 +235,17 @@ def runMidas(tname, uart_div_latch, flog, midas_args=None, coreType="sparc"):
               (uart_div_latch, midas_args, tname)
 
     if coreType == "ariane":
-        cmd += " -ariane"
+        # specify uart_dmw in order to include load instructions for PASS/FAIL
+        cmd += " -ariane -uart_dmw -x_tiles=%d -y_tiles=%d" % (int(x_tiles), int(y_tiles))
     elif coreType == "sparc":
         # nothing to add at the moment
         pass
     else:
         raise Exception("unknown core type " + coreType)
+
+    if precompiled:
+        # used to run precompiled riscv tests
+        cmd += " -precompiled"
 
     rv = subprocess.call(shlex.split(cmd), stdout=flog, stderr=flog)
     print cmd

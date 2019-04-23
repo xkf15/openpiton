@@ -103,8 +103,6 @@ Check out the sections below to see how to run the RISC-V tests or simple bare-m
 
 > Note that the system has only been tested with a 1x1 tile configuration. Verification of more advanced features such as cache coherency among multiple tiles is still a work-in-progress, although simple test programs do work in the manycore setting (see below).
 
-> All RISC-V atomics except LR/SC are supported and tested.
-
 > For simulation, Questasim 10.6b is needed (older versions might work, but have not been tested).
 
 > You will need Vivado 2017.3 or newer to build an FPGA bitstream with Ariane.
@@ -172,8 +170,11 @@ The RISC-V ISA tests, benchmarks and some additonal simple example programs have
 - RISC-V ISA tests are grouped into the following four batches, where the last two are the regressions for atomic memory operations (AMOs):
 
 ```sims -group=ariane_tile1_asm_tests_p -sim_type=msm```
+
 ```sims -group=ariane_tile1_asm_tests_v -sim_type=msm```
+
 ```sims -group=ariane_tile1_amo_tests_p -sim_type=msm```
+
 ```sims -group=ariane_tile1_amo_tests_v -sim_type=msm```
 
 - RISC-V benchmarks can be run with:
@@ -194,41 +195,142 @@ If you would like to get an overview of the exit status of a regression batch, s
 
 ##### FPGA Mapping on Genesys2 Board
 
-> The FPGA mapping is currently being finalized and will be available soon.
-
-<!-- The bitfile for a 1x1 tile Ariane configuration for the Genesys2 board can be built using the follong command (make sure you use Vivado 2017.3 or newer):
+The bitfile for a 1x1 tile Ariane configuration for the Genesys2 board can be built using the follong command:
 
 ```protosyn -b genesys2 -d system --core=ariane --uart-dmw ddr```
+
+> It is recommended to use Vivado 2018.2 since other versions might not produce a working bitstream.
 
 Once you have loaded the bitstream onto the FPGA using the Vivado Hardware Manager or a USB drive plugged into the Genesys2, you first need to connect the UART/USB port of the Genesys2 board to your computer and flip switch 7 on the board as described in the [OpenPiton FPGA Prototype Manual](http://parallel.princeton.edu/openpiton/docs/fpga_man.pdf). Then you can use pitonstream to run a list of tests on the FPGA:
 
 ```pitonstream -b genesys2 -d system -f ./tests.txt --core=ariane```
 
 The tests that you would like to run need to be specified in the `test.txt` file, one test per line (e.g. `hello_world.c`).
+
+You can also run the precompiled RISCV benchmarks by using the following command
+
+```pitonstream -b genesys2 -d system -f ./piton/design/chip/tile/ariane/ci/riscv-benchmarks.list --core=ariane --precompiled```
+
+> Note the `-precompiled` switch here, which has the same effect as when used with the `sims` command.
+
+##### Debugging via JTAG
+
+OpenPiton+Ariane supports the [RISC-V External Debug Draft Spec](https://github.com/riscv/riscv-debug-spec/blob/master/riscv-debug-draft.pdf) and hence you can debug (and program) the FPGA using [OpenOCD](http://openocd.org/doc/html/Architecture-and-Core-Commands.html). We provide two example scripts for OpenOCD below.
+
+To get started, connect the micro USB port that is labeled with JTAG to your machine. This port is attached to the FTDI 2232 USB-to-serial chip on the Genesys 2 board, and is usually used to access the native JTAG interface of the Kintex-7 FPGA (e.g. to program the device using Vivado). However, the FTDI chip also exposes a second serial link that is routed to GPIO pins on the FPGA, and we leverage this to wire up the JTAG from the RISC-V debug module.
+
+>If you are on an Ubuntu based system you need to add the following udev rule to `/etc/udev/rules.d/99-ftdi.rules`
+>```
+> SUBSYSTEM=="usb", ACTION=="add", ATTRS{idProduct}=="6010", ATTRS{idVendor}=="0403", MODE="664", GROUP="plugdev"
+>```
+
+Once attached to your system, the FTDI chip should be listed when you type `lsusb`
+```
+Bus 005 Device 019: ID 0403:6010 Future Technology Devices International, Ltd FT2232C/D/H Dual UART/FIFO IC
+```
+
+If this is the case, you can go on and start openocd with the `fpga/ariane.cfg` configuration file below.
+```
+$ openocd -f fpga/ariane.cfg
+Open On-Chip Debugger 0.10.0+dev-00195-g933cb87 (2018-09-14-19:32)
+Licensed under GNU GPL v2
+For bug reports, read
+    http://openocd.org/doc/doxygen/bugs.html
+adapter speed: 1000 kHz
+Info : auto-selecting first available session transport "jtag". To override use 'transport select <transport>'.
+Info : clock speed 1000 kHz
+Info : TAP riscv.cpu does not have IDCODE
+Info : datacount=2 progbufsize=8
+Info : Examined RISC-V core; found 1 harts
+Info :  hart 0: XLEN=64, misa=0x8000000000141105
+Info : Listening on port 3333 for gdb connections
+Ready for Remote Connections
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : accepting 'gdb' connection on tcp/3333
+```
+Note that this simple OpenOCD script currently only supports one hart to be debugged at a time. Select the hart to debug by changing the core id (look for the `-coreid` switch in the `ariane.cfg` file). 
+
+Then you will be able to either connect through `telnet` or with `gdb`:
+```
+$ riscv64-unknown-elf-gdb /path/to/elf
+(gdb) target remote localhost:3333
+(gdb) load
+Loading section .text, size 0x6508 lma 0x80000000
+Loading section .rodata, size 0x900 lma 0x80006508
+(gdb) b putchar
+(gdb) c
+Continuing.
+
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0x0000000080009126 in putchar (s=72) at lib/qprintf.c:69
+69    uart_sendchar(s);
+(gdb) si
+0x000000008000912a  69    uart_sendchar(s);
+(gdb) p/x $mepc
+$1 = 0xfffffffffffdb5ee
+```
+
+You can read or write device memory by using:
+```
+(gdb) x/i 0x1000
+    0x1000: lui t0,0x4
+(gdb) set {int} 0x1000 = 22
+(gdb) set $pc = 0x1000
+```
+
+In order to compile programs that you can load with GDB, use the following command:
+
+```sims -sys=manycore -novcs_build -midas_only hello_world.c -ariane -x_tiles=1 -y_tiles=1 -gcc_args="-g"```
+
+Note that the tile configuration needs to correspond to your actual platform configuration if your program is a multi-hart program. Otherwise you can omit these switches (the additional cores will not execute the program in that case).
+
+##### Booting SMP Linux on Genesys2 and VC707
+
+We currently support single core and SMP Linux on the Genesys2, VC707 and VCU118 FPGA development boards. The single-core configurations are relatively stable, however the SMP versions can sometimes crash during boot. This is a known issue and will be addressed in a future release.
+
+In order to build an FPGA image for these boards, use either of the following commands:
+
+```protosyn -b genesys2 -d system --core=ariane --uart-dmw ddr```
+
+```protosyn -b vc707 -d system --core=ariane --uart-dmw ddr```
+
+The default parameters are 1 core for all boards, but you can override this with command line arguments. The commands below represent the maximum configurations that can be mapped onto the corresponding board:
+
+```protosyn -b genesys2 -d system --core=ariane --uart-dmw ddr --x_tiles=2```
+
+```protosyn -b vc707 -d system --core=ariane --uart-dmw ddr --x_tiles=2 --y_tiles=2```
+
+Once you generated the FPGA bitfile, go and grab the [ariane-sdk](https://github.com/pulp-platform/ariane-sdk) and follow the steps in that readme to build the Linux image and prepare the SD card (make sure you use the `openpiton` branch in that repository). If you do not want to go through the hassle of building your own image, you can download a pre-built linux image from [here](https://github.com/pulp-platform/ariane-sdk/releases/tag/v0.2.0-op).
+
+> Note that the board specific settings are encoded in the device tree that is automatically generated and compiled into the FPGA bitfile, so no specific configuration of the Linux kernel is needed.
+
+Insert the SD card into the corresponding slot of the FPGA board, connect a terminal to the UART using e.g. `screen /dev/ttyUSB0 115200`, and program the FPGA. Once the device comes out of reset, the zero-stage bootloader copies the Linux image (including the first stage bootloader) into DRAM, and executes it. Be patient, copying from SD takes a couple of seconds.
+
+
+<!-- ##### Booting Linux on Genesys2, VC707 and VCU118
+
+```protosyn -b vcu118 -d system --core=ariane --uart-dmw ddr```
+
+```protosyn -b vcu118 -d system --core=ariane --uart-dmw ddr --x_tiles=4 --x_tiles=4```
+
+> For the VCU118 board you need the [PMOD SD adapter](https://store.digilentinc.com/pmod-sd-full-sized-sd-card-slot/) from Digilent to be able to use an SD card (the slot on the VCU118 board is not directly connected to the FPGA). As the PMOD0 port has open-drain level-shifters, you also have to replace the R1-R4 and R7-8 resistors with 470 Ohm 0201 SMD resistors on the Digilent PMOD SD adapter to make sure that signal rise times are short enough. 
  -->
 
 ##### Planned Improvements
 
 The following items are currently under development and will be released soon.
 
+- Floating point support.
+
 - Thorough validation of cache coherence.
-
-- RISC-V Compliant Debug. Debug support is included, but not fully tested, yet.
-
-- RISC-V Compliant Interrupt Controllers. The CLINT and PLIC have been included, but are not fully tested yet.
 
 - RISC-V FESVR support in simulation.
 
 - Support for simulation with Synopsys VCS.
 
-- Performance enhancements (cache re-parameterization, write-buffer throughput).
-
 - Synthesis flow for large FPGAs.
 
-- Floating point support.
-
-- Automatic device tree generation for bootrom.
-
-- Single-core and SMP Linux support.
+- Performance enhancements (cache re-parameterization, write-buffer throughput).
 
 Stay tuned!
