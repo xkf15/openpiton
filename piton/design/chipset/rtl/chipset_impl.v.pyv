@@ -83,6 +83,9 @@ module chipset_impl(
 
     output                                      test_start,
 
+    // invalid access inside packet filter
+    output                                      invalid_access_o,
+
 `ifndef PITONSYS_NO_MC
 `ifdef PITON_FPGA_MC_DDR3
     input                                       mc_clk,
@@ -427,6 +430,24 @@ test_end_checker test_end_checker(
 `endif
 
 <%
+
+# need to figure out number of invalid access signals
+tmpNum=0
+for i in range(len(devices)):
+    if devices[i]["noc2_in"]:
+        tmpNum +=1
+
+if tmpNum:
+    print """
+wire [%d-1:0] invalid_access;
+assign invalid_access_o = |invalid_access;
+""" % (tmpNum)
+else:
+    print """
+assign invalid_access_o = 1'b0;
+"""
+
+tmpIdx=0
 for i in range(len(devices)):
     if devices[i]["noc2_in"]:
         print """
@@ -434,7 +455,7 @@ packet_filter %s_packet_filter(
     .clk(chipset_clk),
     .rst_n(chipset_rst_n),
     // need to connect this to a LED
-    .invalid_access_o(),
+    .invalid_access_o(invalid_access[%d]),
 
     // noc2 to filter wires
     .noc2_filter_val(%s_filter_noc2_valid),
@@ -458,11 +479,12 @@ packet_filter %s_packet_filter(
 
     .uart_boot_en(uart_boot_en)
 );
-""" % (devices[i]["name"], devices[i]["name"], devices[i]["name"],
+""" % (devices[i]["name"], tmpIdx,
        devices[i]["name"], devices[i]["name"], devices[i]["name"],
        devices[i]["name"], devices[i]["name"], devices[i]["name"],
-       devices[i]["name"], devices[i]["name"], devices[i]["name"],devices[i]["name"],
-)
+       devices[i]["name"], devices[i]["name"], devices[i]["name"],
+       devices[i]["name"], devices[i]["name"], devices[i]["name"])
+        tmpIdx+=1
 %>
 
 <%
@@ -682,10 +704,12 @@ fake_mem_ctrl fake_mem_ctrl(
 
 `endif // endif PITONSYS_NO_MC
 
-`ifdef PITONSYS_IOCTRL
 
 wire net_interrupt;
 wire uart_interrupt;
+
+`ifdef PITONSYS_IOCTRL
+
 wire ciop_iob_rst_n;
 assign ciop_iob_rst_n = io_ctrl_rst_n & test_start & ~piton_ready_n;
 
@@ -835,12 +859,14 @@ eth_top eth_top (
 );
 
 `else // PITONSYS_IOCTRL
-// Fake iobridge
-ciop_fake_iob ciop_fake_iob(
-    .noc_in_val        ( intf_chipset_val_noc1 ),
-    .noc_in_rdy        ( intf_chipset_rdy_noc1 ),
-    .noc_in_data       ( intf_chipset_data_noc1),
 
+assign net_interrupt  = 1'b0;
+assign uart_interrupt = 1'b0;
+
+// Fake iobridge
+// Tie noc1 input low because it's unused
+assign intf_chipset_rdy_noc1 = 1'b0;
+ciop_fake_iob ciop_fake_iob(
     .noc_out_val       ( iob_filter_noc2_valid ),
     .noc_out_rdy       ( filter_iob_noc2_ready ),
     .noc_out_data      ( iob_filter_noc2_data  ),
@@ -907,14 +933,25 @@ fake_uart fake_uart (
 
 `ifdef PITON_ARIANE
 
-    // irq sources into PLIC are not connected yet
-    wire irq_sources;
-    assign irq_sources = 1'b0;
+    wire [1:0] irq_sources;
+    assign irq_sources = {net_interrupt, uart_interrupt};
 
-    serpent_peripherals #(
+    // this is for selecting the right bootrom (1: baremetal, 0: linux)
+    wire ariane_boot_sel;
+`ifdef PITON_FPGA_SYNTH
+  assign ariane_boot_sel   = uart_boot_en;
+`else
+  `ifdef ARIANE_SIM_LINUX_BOOT
+    assign ariane_boot_sel = 1'b0;
+  `else
+    assign ariane_boot_sel = 1'b1;
+  `endif
+`endif
+
+    riscv_peripherals #(
         .DataWidth      ( `NOC_DATA_WIDTH ),
         .NumHarts       (      `NUM_TILES ),
-        .NumSources     (               1 ),
+        .NumSources     (               2 ),
         .SwapEndianess  (               1 )
     ) i_serpent_peripherals (
         .clk_i                           ( chipset_clk                   ),
@@ -944,6 +981,8 @@ fake_uart fake_uart (
         .ariane_plic_buf_noc3_data_o     ( ariane_plic_buf_noc3_data     ),
         .ariane_plic_buf_noc3_valid_o    ( ariane_plic_buf_noc3_valid    ),
         .buf_ariane_plic_noc3_ready_i    ( buf_ariane_plic_noc3_ready    ),
+        // This selects either the BM or linux bootrom
+        .ariane_boot_sel_i               ( ariane_boot_sel               ),
         // Debug sigs to cores
         .ndmreset_o                      ( ndmreset_o                    ),
         .dmactive_o                      ( dmactive_o                    ),
@@ -955,6 +994,7 @@ fake_uart fake_uart (
         .trst_ni                         ( trst_ni                       ),
         .td_i                            ( td_i                          ),
         .td_o                            ( td_o                          ),
+        .tdo_oe_o                        (                               ),
         // CLINT
         .rtc_i                           ( rtc_i                         ),
         .timer_irq_o                     ( timer_irq_o                   ),
