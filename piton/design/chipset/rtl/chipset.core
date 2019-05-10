@@ -5,12 +5,21 @@ description: OpenPiton Tile
 filesets:
     rtl:
         files:
+            - blinker.v
             - chipset.v
+            - storage_addr_trans.v
+            - storage_addr_trans_unified.v
+            - test_end_checker.v
+            - ../common/rtl/noc_bidir_afifo.v
         depend:
             - openpiton::piton_chipset_include
             - openpiton::fpga_bridge
+            - openpiton::memory_controller
             - openpiton::noc_axilite_bridge
+            - openpiton::noc_sd_bridge
+            - openpiton::io_ctrl
             - openpiton::io_xbar
+            - openpiton::oled
         file_type: verilogSource-2001
 
 targets:
