@@ -6,7 +6,6 @@ filesets:
     rtl:
         files:
             - system.v
-            - g2_defines.h
         depend:
             - openpiton::chip
             - openpiton::chipset
@@ -14,6 +13,7 @@ filesets:
 
     vivado_tcl:
         files:
+            - g2_defines.h: {file_type : verilogSource-2001}
             - system_defines.tcl: {file_type : tclSource}
 
     vivado_ip:

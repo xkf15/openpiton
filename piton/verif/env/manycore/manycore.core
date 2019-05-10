@@ -30,18 +30,33 @@ filesets:
             - ../common/fake_mem_ctrl.v
         file_type: verilogSource-2001
 
+    cpp_files:
+        files:
+            - ../../../tools/verilator/my_top.cpp
+            - ../../../tools/pli/iop/b_ary.c
+            - ../../../tools/pli/iop/b_ary.h: {is_include_file: true}
+            - ../../../tools/pli/iop/bw_lib.c
+            - ../../../tools/pli/iop/bw_lib.h: {is_include_file: true}
+            - ../../../tools/pli/iop/iob_main.cc
+            - ../../../tools/pli/iop/iob.cc
+            - ../../../tools/pli/iop/iob.h: {is_include_file: true}
+            - ../../../tools/pli/iop/cpx.cc
+            - ../../../tools/pli/iop/cpx.h: {is_include_file: true}
+            - ../../../tools/pli/iop/pcx.cc
+            - ../../../tools/pli/iop/pcx.h: {is_include_file: true}
+            - ../../../tools/pli/iop/global.h: {is_include_file: true}
+        file_type: cppSource
+
 targets:
     sim:
         default_tool: icarus
-        filesets: [tb_files]
+        filesets:
+            - tb_files
+            - tool_verilator? (cpp_files)
         generate: [pyhp_preprocess]
         toplevel: [cmp_top]
         tools:
-            icarus:
-                iverilog_options: [-g 2001]
-            vcs:
-                vcs_options: [-timescale=1ps/1ps -P /tigress/jbalkind/piton/piton/tools/pli/utility/bwutility_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/mem/bwmem_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/socket/bwsocket_pli.tab -P /tigress/jbalkind/piton/piton/tools/pli/iop/bwioj.tab]
-                
+
 generate:
     pyhp_preprocess:
         generator: pyhp_preprocess_gen

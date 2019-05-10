@@ -12,12 +12,12 @@ filesets:
         depend:
             - openpiton::piton_chipset_include
             - openpiton::fpga_bridge
-            - openpiton::memory_controller
+            - "tool_vivado? (openpiton::memory_controller)"
             - openpiton::noc_axilite_bridge
-            - openpiton::noc_sd_bridge
+            - "tool_vivado? (openpiton::noc_sd_bridge)"
             - openpiton::io_ctrl
             - openpiton::io_xbar
-            - openpiton::oled
+            - "tool_vivado? (openpiton::oled)"
         file_type: verilogSource-2001
 
 targets:

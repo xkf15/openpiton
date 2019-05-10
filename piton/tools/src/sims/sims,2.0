@@ -1349,23 +1349,7 @@ sub generic_sim_build
       $build_cmd .= " -suppress 2583 ";
     }
     if ($opt{vlt_build}) {
-      $build_cmd = "verilator -cc " ;
-      $build_cmd .= "-exe $dv_root/tools/verilator/my_top.cpp " ;
-      $build_cmd .= "$dv_root/tools/pli/iop/b_ary.c " ;
-      $build_cmd .= "$dv_root/tools/pli/iop/bw_lib.c " ;
-      $build_cmd .= "$dv_root/tools/pli/iop/iob_main.cc " ;
-      $build_cmd .= "$dv_root/tools/pli/iop/iob.cc " ;
-      $build_cmd .= "$dv_root/tools/pli/iop/cpx.cc " ;
-      $build_cmd .= "$dv_root/tools/pli/iop/pcx.cc " ;
-      $build_cmd .= "--top-module cmp_top " ;
-      $build_cmd .= "-Wno-fatal " ;
-      $build_cmd .= "-DPITON_DPI " ;
-      $build_cmd .= "--unroll-count 256 " ;
-      $build_cmd .= "-CFLAGS -DVERILATOR " ;
-      $build_cmd .= "-CFLAGS -DPITON_DPI " ;
-      $build_cmd .= "-CFLAGS -lstdc++ " ;
-      $build_cmd .= "-CFLAGS -I$dv_root/tools/pli/iop " ;
-      $build_cmd .= "-CFLAGS -I$dv_root/tools/verilator " ;
+      $build_cmd .= "--tool=verilator " ;
     }
     if ($opt{other_sim_build}) {
       if (($opt{other_sim_build_cmd}) eq "") {
@@ -1405,6 +1389,19 @@ sub generic_sim_build
       $build_cmd .= "\" ";
     }
 
+    if ($opt{vlt_build}) {
+      $build_cmd .= "--verilator_options=\"" ;
+      foreach my $x (@{$opt{sim_build_args}})
+      {
+          $build_cmd .= "$x ";
+      }
+      foreach my $x (@{$opt{config_rtl}})
+      {
+          $build_cmd .= "-D$x ";
+      }
+      $build_cmd .= "\" ";
+    }
+
     print "$prg: $build_cmd\n";
 
     if (! $opt{dryrun}) {
@@ -1412,16 +1409,16 @@ sub generic_sim_build
       die ("DIE. failed building model") if ($?) ;
     }
 
-    if ($opt{vlt_build}) {
-      $build_cmd = "make -j -C $model_path/obj_dir -f Vcmp_top.mk Vcmp_top" ;
+    # if ($opt{vlt_build}) {
+    #   $build_cmd = "make -j -C $model_path/obj_dir -f Vcmp_top.mk Vcmp_top" ;
 
-      print "$prg: $build_cmd\n";
+    #   print "$prg: $build_cmd\n";
 
-      if (! $opt{dryrun}) {
-        system ($build_cmd) ;
-        die ("DIE. failed building model") if ($?) ;
-      }
-    }
+    #   if (! $opt{dryrun}) {
+    #     system ($build_cmd) ;
+    #     die ("DIE. failed building model") if ($?) ;
+    #   }
+    # }
 
     # go back to where the script was invoked
     chdir $cur_dir ;
@@ -1449,7 +1446,7 @@ sub generic_sim_run
     die ("DIE. INCA_libs not found in $model_path") if ($opt{ncv_run} and ! -e "$model_path/INCA_libs") ;
     die ("DIE. a.out not found in $model_path") if ($opt{icv_run} and ! -e "$model_path/sim-icarus/a.out") ;
     die ("DIE. work/ not found in $model_path") if ($opt{msm_run} and ! -d "$model_path/work") ;
-    die ("DIE. obj_dir/ not found in $model_path") if ($opt{vlt_run} and ! -d "$model_path/obj_dir") ;
+    die ("DIE. sim-verilator/ not found in $model_path") if ($opt{vlt_run} and ! -d "$model_path/sim-verilator") ;
 
     # pass the good trap and bad trap addresses to the testbench
     my $good_trap = "";
@@ -1616,7 +1613,7 @@ sub generic_sim_run
     }
 
     if ($opt{vlt_run}) {
-      $cmd .= "$model_path/obj_dir/Vcmp_top " ;
+      $cmd .= "$model_path/sim-verilator/Vcmp_top " ;
       $cmd .= " " ;
       $cmd .= join (" ", @{$opt{sim_run_args}}) ;
     }
