@@ -7,8 +7,6 @@ filesets:
         files:
             - blinker.v
             - chipset.v
-            - storage_addr_trans.v
-            - storage_addr_trans_unified.v
             - test_end_checker.v
             - ../common/rtl/noc_bidir_afifo.v
         depend:
@@ -46,4 +44,7 @@ generate:
     pyhp_preprocess:
         generator: pyhp_preprocess_gen
         parameters:
-            process_me : [[chipset_impl.v.pyv, chipset_impl.tmp.v], [packet_filter.v.pyv, packet_filter.tmp.v]]
+            process_me : [[chipset_impl.v.pyv, chipset_impl.tmp.v],
+                          [packet_filter.v.pyv, packet_filter.tmp.v],
+                          [storage_addr_trans.v.pyv, storage_addr_trans.tmp.v],
+                          [storage_addr_trans_unified.v.pyv, storage_addr_trans_unified.tmp.v]]
