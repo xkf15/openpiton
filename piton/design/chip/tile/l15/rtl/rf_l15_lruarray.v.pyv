@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //==================================================================================================
 //rf_l15_lruarray.v
-
+`include "l15.tmp.h"
 
 <%
   import pyhplib

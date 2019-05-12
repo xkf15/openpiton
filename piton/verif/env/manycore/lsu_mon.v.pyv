@@ -28,6 +28,7 @@
 ////////////////////////////////////////////////////////
 
 `include "cross_module.tmp.h"
+`include "lsu.tmp.h"
 `include "sys.h"
 `include "iop.h"
 

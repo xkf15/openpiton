@@ -40,6 +40,7 @@
 // Local header file includes / local defines
 ////////////////////////////////////////////////////////////////////////
 `include	"lsu.tmp.h"
+`include    "ifu.tmp.h"
 
 `ifndef NO_RTL_CSM
 `include "define.tmp.h"

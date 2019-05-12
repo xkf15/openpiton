@@ -26,6 +26,7 @@
 `include "define.tmp.h"
 `include "cross_module.tmp.h"
 `include "l15.tmp.h"
+`include "lsu.tmp.h"
 
 module cmp_l15_messages_mon (
     input wire clk

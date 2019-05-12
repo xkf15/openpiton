@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //`default_nettype none
 
 // 12/17 timing fix: move write to s3
+`include "l15.tmp.h"
 
 <%
   import pyhplib

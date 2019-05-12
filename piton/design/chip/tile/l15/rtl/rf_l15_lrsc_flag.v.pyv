@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //`timescale 1 ns / 10 ps
 //`default_nettype none
-
+`include "l15.tmp.h"
 
 <%
   import pyhplib

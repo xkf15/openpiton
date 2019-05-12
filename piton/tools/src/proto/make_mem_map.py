@@ -194,6 +194,7 @@ def genVerilogMapping(section_list, st_brd, fname=MAP_MODULE_NAME, tname="unknow
     print >> f, "// Auto generated mapping module"
     print >> f, "// It is provided for test: %s " % tname
     print >> f, "//-----------------------------------------"
+    print >> f, "`include \"chipset_define.vh\""
     print >> f, """ module storage_addr_trans #(parameter MEM_ADDR_WIDTH=64, VA_ADDR_WIDTH=40, STORAGE_ADDR_WIDTH=12)
 (
     input       [VA_ADDR_WIDTH-1:0]         va_byte_addr,
