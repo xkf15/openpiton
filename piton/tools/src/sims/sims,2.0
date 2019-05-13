@@ -1183,13 +1183,7 @@ sub generic_sim_build
     }
 
     if ($opt{vcs_build}) {
-      $lib_path = "-L$ENV{DV_ROOT}/tools/";
-      $lib_path .= $os_cpu_slash;
-      $lib_path .= "/lib ";
-
-      foreach my $top_n (@{$opt{toplevel}}) {
-        push(@{$opt{vcs_build_args}}, "-top $top_n") ;
-      }
+      $lib_path = "-L$ENV{DV_ROOT}/tools/$os_cpu_slash/lib ";
 
       push (@{$opt{vcs_build_args}}, "+compsdf") if ($opt{vcs_use_sdf}) ;
       push (@{$opt{vcs_build_args}}, "+initreg") if ($opt{vcs_use_initreg}) ;
@@ -1256,36 +1250,14 @@ sub generic_sim_build
     }
 
     # copy vcs/icv/ncv/msm/vlt_build_args to generic sim_build_args
-    if ($opt{vcs_build}) {
-      foreach my $x (@{$opt{vcs_build_args}}) {
-          push (@{$opt{sim_build_args}}, $x);
-      }
-    }
-    if ($opt{ncv_build}) {
-      foreach my $x (@{$opt{ncv_build_args}}) {
-          push (@{$opt{sim_build_args}}, $x);
-      }
-    }
-    if ($opt{icv_build}) {
-      foreach my $x (@{$opt{icv_build_args}}) {
-          push (@{$opt{sim_build_args}}, $x);
-      }
-    }
-    if ($opt{msm_build}) {
-      foreach my $x (@{$opt{msm_build_args}}) {
-          push (@{$opt{sim_build_args}}, $x);
-      }
-    }
-    if ($opt{vlt_build}) {
-      foreach my $x (@{$opt{vlt_build_args}}) {
-          push (@{$opt{sim_build_args}}, $x);
-      }
-    }
+    push (@{$opt{sim_build_args}}, @{$opt{vcs_build_args}}) if ($opt{vcs_build});
+    push (@{$opt{sim_build_args}}, @{$opt{ncv_build_args}}) if ($opt{ncv_build});
+    push (@{$opt{sim_build_args}}, @{$opt{icv_build_args}}) if ($opt{icv_build});
+    push (@{$opt{sim_build_args}}, @{$opt{msm_build_args}}) if ($opt{msm_build});
+    push (@{$opt{sim_build_args}}, @{$opt{vlt_build_args}}) if ($opt{vlt_build});
 
     if ($opt{ncv_build}) {
-      $ld_lib_path .= "$ENV{DV_ROOT}/tools/";
-      $ld_lib_path .= $os_cpu_slash;
-      $ld_lib_path .= "/lib";
+      $ld_lib_path .= "$ENV{DV_ROOT}/tools/$os_cpu_slash/lib";
       $ld_lib_path .= ":$ENV{NCV_HOME}/tools/lib/64bit:";
       $ld_lib_path .= $ENV{LD_LIBRARY_PATH};
       $ENV{LD_LIBRARY_PATH} = $ld_lib_path;
@@ -1497,12 +1469,8 @@ sub generic_sim_run
       $ld_lib_path = $ENV{LD_LIBRARY_PATH};
       $ld_lib_path .= ":$ENV{DV_ROOT}/tools/$os_cpu_slash/lib";
       $ld_lib_path .= ":$ENV{NCV_HOME}/tools/lib/64bit";
-      $cmd .= "#!/bin/csh -f\nsetenv LD_LIBRARY_PATH ";
-      $cmd .= $ld_lib_path;
-      $cmd .= "\n" ;
-      $cmd .= "echo ";
-      $cmd .= $ncvcommand;
-      $cmd .= " | ncverilog " ;
+      $cmd .= "#!/bin/csh -f\nsetenv LD_LIBRARY_PATH $ld_lib_path\n" ;
+      $cmd .= "echo $ncvcommand | ncverilog " ;
       $cmd .= "+nclibdirname+$model_path/sim-incisive/INCA_libs " ;
       foreach my $top_n (@{$opt{toplevel}}) {
         $cmd .= "-r worklib.$top_n:v ";
@@ -1534,26 +1502,20 @@ sub generic_sim_run
       	print("$prg: dumping all waves to save.wlf - this file can get very large so make sure you run this on a fast disk with enough space.\n");
       	$cmd .= " -wlfcompress -wlf all-waves.wlf -do \"log -r /*\" ";
       }
-      $cmd .= "-lib ";
-      $cmd .= "$model_path/work ";
+      $cmd .= "-lib $model_path/work ";
       $cmd .= "-do \"run -all\" ";
 
       foreach my $top_n (@{$opt{toplevel}}) {
         $cmd .= "$top_n ";
       }
 
-      $cmd .= "-pli \"";
-      $cmd .= "$ENV{DV_ROOT}/tools/";
-      $cmd .= $os_cpu_slash;
-      $cmd .= "/lib/libmodelsimpli.so\"";
-      $cmd .= " " ;
+      $cmd .= "-pli \"$ENV{DV_ROOT}/tools/$os_cpu_slash/lib/libmodelsimpli.so\" ";
       $cmd .= join (" ", @{$opt{sim_run_args}}) ;
       print("====================================\n$cmd\n====================================");
     }
 
     if ($opt{vlt_run}) {
       $cmd .= "$model_path/sim-verilator/Vcmp_top " ;
-      $cmd .= " " ;
       $cmd .= join (" ", @{$opt{sim_run_args}}) ;
     }
 
