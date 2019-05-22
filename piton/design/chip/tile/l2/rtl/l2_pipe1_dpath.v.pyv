@@ -1007,6 +1007,7 @@ end
 l2_amo_alu l2_amo_alu (
     .clk            (clk),
     .rst_n          (rst_n),
+    .stall_real_S2  (stall_real_S2),
     .amo_alu_op     (amo_alu_op_S2),
     .address        (addr_trans_S1),
     .data_size      (data_size_S1),

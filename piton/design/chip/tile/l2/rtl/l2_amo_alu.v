@@ -31,7 +31,7 @@ module l2_amo_alu #(
 ) (
   input                                 clk,
   input                                 rst_n,
-
+  input                                 stall_real_S2,
   input      [`L2_AMO_ALU_OP_WIDTH-1:0] amo_alu_op,
   input      [`PHY_ADDR_WIDTH-1:0]      address,
   input      [`MSG_DATA_SIZE_WIDTH-1:0] data_size,
@@ -50,6 +50,7 @@ reg  [64:0] adder_operand_a, adder_operand_b;
 wire [64:0] adder_sum;
 reg  [`PHY_ADDR_WIDTH-1:0] address_f;
 reg  [`L2_DATA_DATA_WIDTH-1:0] memory_operand_f;
+reg  [`MSG_DATA_SIZE_WIDTH-1:0] data_size_f;
 
 // note: the L2_DATA_DATA_WIDTH_LOG2 is calculated for a bit width
 // so we have to subtract 6 from it in order to get the a dword index
@@ -124,13 +125,15 @@ begin
         address_f           <= {`PHY_ADDR_WIDTH{1'b0}};
         dword_offset_f      <= {`L2_DATA_DATA_WIDTH_LOG2{1'b0}};
         memory_operand_f    <= {`L2_DATA_DATA_WIDTH{1'b0}};
-    end else begin
+        data_size_f         <= {`MSG_DATA_SIZE_WIDTH{1'b0}};
+    end else if (~stall_real_S2) begin
         amo_operand_a       <= amo_operand_a_next;
         amo_operand_b       <= amo_operand_b_next;
         amo_operand_a_swp_f <= amo_operand_a_swp;
         address_f           <= address;
         dword_offset_f      <= dword_offset;
         memory_operand_f    <= memory_operand;
+        data_size_f         <= data_size;
     end
 end
 
@@ -177,7 +180,7 @@ end
 always @* begin
   // first read-modify-write 64bit word
   amo_64b_result = amo_operand_a_swp_f;
-  case (data_size)
+  case (data_size_f)
     `MSG_DATA_SIZE_1B: begin
       amo_64b_result[address_f[2:0]*8 +: 8]     = amo_64b_tmp[56 +: 8];
     end
@@ -191,7 +194,7 @@ always @* begin
         amo_64b_result  = amo_64b_tmp;
     end
     default: ;
-  endcase // data_size
+  endcase // data_size_f
 
   // merge back into memory line
   amo_result     = memory_operand_f;
