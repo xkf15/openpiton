@@ -205,6 +205,8 @@ module l2_pipe1_ctrl(
     output reg reg_wr_en_S1,
     output reg [`L2_ADDR_TYPE_WIDTH-1:0] reg_wr_addr_type_S1,
 
+    output reg [`MSG_DATA_SIZE_WIDTH-1:0] data_size_S1,
+    output reg [`L2_AMO_ALU_OP_WIDTH-1:0] amo_alu_op_S1,
 
     //Outputs from Stage 2
 
@@ -225,7 +227,6 @@ module l2_pipe1_ctrl(
 
     output reg data_clk_en_S2,
     output reg data_rdw_en_S2,
-    output reg [`L2_AMO_ALU_OP_WIDTH-1:0] amo_alu_op_S2,
 
     output reg [`MSG_DATA_SIZE_WIDTH-1:0] data_size_S2,
     output reg [`MSG_CACHE_TYPE_WIDTH-1:0] cache_type_S2,
@@ -353,7 +354,6 @@ reg stall_pre_S1;
 reg stall_hazard_S1;
 reg [`MSG_TYPE_WIDTH-1:0] msg_type_mux_S1;
 reg [`MSG_TYPE_WIDTH-1:0] msg_type_trans_S1;
-reg [`MSG_DATA_SIZE_WIDTH-1:0] data_size_S1;
 reg [`MSG_CACHE_TYPE_WIDTH-1:0] cache_type_S1;
 
 reg msg_header_ready_real_S1;
@@ -424,6 +424,7 @@ reg atomic_state_S1_next;
 
 always @ *
 begin
+    amo_alu_op_S1 = `L2_AMO_ALU_NOP;
     if (!rst_n)
     begin
         atomic_state_S1_next = atomic_state0;
@@ -456,6 +457,32 @@ begin
             || msg_type_trans_S1 == `MSG_TYPE_AMO_MINU_P2_REQ))
     begin
         atomic_state_S1_next = atomic_state0;
+        case (msg_type_trans_S1)
+            `MSG_TYPE_AMO_ADD_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_ADD;
+            end
+            `MSG_TYPE_AMO_AND_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_AND;
+            end
+            `MSG_TYPE_AMO_OR_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_OR;
+            end
+            `MSG_TYPE_AMO_XOR_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_XOR;
+            end
+            `MSG_TYPE_AMO_MAX_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_MAX;
+            end
+            `MSG_TYPE_AMO_MAXU_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_MAXU;
+            end
+            `MSG_TYPE_AMO_MIN_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_MIN;
+            end
+            `MSG_TYPE_AMO_MINU_P2_REQ: begin
+                amo_alu_op_S1 = `L2_AMO_ALU_MINU;
+            end
+        endcase
     end
     else
     begin
@@ -1933,13 +1960,6 @@ begin
     mshr_wr_data_en_S2 = !stall_S2 && cs_S2[`CS_MSHR_WR_EN_P1S2];
     mshr_wr_state_en_S2 = !stall_S2 && cs_S2[`CS_MSHR_WR_EN_P1S2];
 end
-
-always @ *
-begin
-    amo_alu_op_S2 = cs_S2[`CS_AMO_ALU_OP_P1S2];
-end
-
-
 
 always @ *
 begin
