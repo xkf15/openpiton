@@ -123,6 +123,7 @@ module l2_pipe1_dpath(
     input wire stall_S1,
     input wire msg_from_mshr_S1, 
     
+    input wire [`MSG_DATA_SIZE_WIDTH-1:0] data_size_S1,
  
     //Inputs to Stage 2   
     //input from the input buffer
@@ -1004,11 +1005,13 @@ begin
 end
 
 l2_amo_alu l2_amo_alu (
+    .clk            (clk),
+    .rst_n          (rst_n),
     .amo_alu_op     (amo_alu_op_S2),
-    .address        (addr_S2_f),
-    .data_size      (data_size_S2),
-    .memory_operand (atomic_read_data_S2_f),
-    .cpu_operand    ({msg_data_S2, msg_data_S2}),
+    .address        (addr_trans_S1),
+    .data_size      (data_size_S1),
+    .memory_operand (atomic_read_data_S1_next),
+    .cpu_operand    ({msg_data_S1, msg_data_S1}),
     .amo_result     (amo_result_S2)
 );
 

@@ -29,6 +29,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 module l2_amo_alu #(
   parameter SWAP_ENDIANESS = 1
 ) (
+  input                                 clk,
+  input                                 rst_n,
+
   input      [`L2_AMO_ALU_OP_WIDTH-1:0] amo_alu_op,
   input      [`PHY_ADDR_WIDTH-1:0]      address,
   input      [`MSG_DATA_SIZE_WIDTH-1:0] data_size,
@@ -39,14 +42,19 @@ module l2_amo_alu #(
 
 wire [63:0] amo_operand_a_mux, amo_operand_b_mux;
 wire [63:0] amo_operand_a_swp, amo_operand_b_swp;
+reg  [63:0] amo_operand_a_swp_f;
+reg  [63:0] amo_operand_a_next, amo_operand_b_next;
 reg  [63:0] amo_operand_a, amo_operand_b;
 reg  [63:0] amo_64b_tmp, amo_64b_result;
 reg  [64:0] adder_operand_a, adder_operand_b;
 wire [64:0] adder_sum;
+reg  [`PHY_ADDR_WIDTH-1:0] address_f;
+reg  [`L2_DATA_DATA_WIDTH-1:0] memory_operand_f;
 
 // note: the L2_DATA_DATA_WIDTH_LOG2 is calculated for a bit width
 // so we have to subtract 6 from it in order to get the a dword index
 wire [`L2_DATA_DATA_WIDTH_LOG2-7:0] dword_offset;
+reg  [`L2_DATA_DATA_WIDTH_LOG2-7:0] dword_offset_f;
 
 
 // select dword to operate on
@@ -82,30 +90,49 @@ endgenerate
 
 // operand word/byte select
 always @* begin
-  amo_operand_a = 64'h0;
-  amo_operand_b = 64'h0;
+  amo_operand_a_next = 64'h0;
+  amo_operand_b_next = 64'h0;
 
   case (data_size)
     `MSG_DATA_SIZE_1B: begin
-      amo_operand_a[56 +: 8]     = amo_operand_a_swp[address[2:0]*8 +: 8];
-      amo_operand_b[56 +: 8]     = amo_operand_b_swp[address[2:0]*8 +: 8];
+      amo_operand_a_next[56 +: 8]     = amo_operand_a_swp[address[2:0]*8 +: 8];
+      amo_operand_b_next[56 +: 8]     = amo_operand_b_swp[address[2:0]*8 +: 8];
     end
     `MSG_DATA_SIZE_2B: begin
-        amo_operand_a[48 +: 16]  = amo_operand_a_swp[address[2:1]*16 +: 16];
-        amo_operand_b[48 +: 16]  = amo_operand_b_swp[address[2:1]*16 +: 16];
+        amo_operand_a_next[48 +: 16]  = amo_operand_a_swp[address[2:1]*16 +: 16];
+        amo_operand_b_next[48 +: 16]  = amo_operand_b_swp[address[2:1]*16 +: 16];
      end
     `MSG_DATA_SIZE_4B: begin
-        amo_operand_a[32 +: 32]  = amo_operand_a_swp[address[2:2]*32 +: 32];
-        amo_operand_b[32 +: 32]  = amo_operand_b_swp[address[2:2]*32 +: 32];
+        amo_operand_a_next[32 +: 32]  = amo_operand_a_swp[address[2:2]*32 +: 32];
+        amo_operand_b_next[32 +: 32]  = amo_operand_b_swp[address[2:2]*32 +: 32];
     end
     `MSG_DATA_SIZE_8B: begin
-        amo_operand_a  = amo_operand_a_swp;
-        amo_operand_b  = amo_operand_b_swp;
+        amo_operand_a_next  = amo_operand_a_swp;
+        amo_operand_b_next  = amo_operand_b_swp;
     end
     default: ;
   endcase // data_size
 end
 
+// flop select output before ALU op
+always @(posedge clk)
+begin
+    if (~rst_n) begin
+        amo_operand_a       <= {64{1'b0}};
+        amo_operand_b       <= {64{1'b0}};
+        amo_operand_a_swp_f <= {64{1'b0}};
+        address_f           <= {`PHY_ADDR_WIDTH{1'b0}};
+        dword_offset_f      <= {`L2_DATA_DATA_WIDTH_LOG2{1'b0}};
+        memory_operand_f    <= {`L2_DATA_DATA_WIDTH{1'b0}};
+    end else begin
+        amo_operand_a       <= amo_operand_a_next;
+        amo_operand_b       <= amo_operand_b_next;
+        amo_operand_a_swp_f <= amo_operand_a_swp;
+        address_f           <= address;
+        dword_offset_f      <= dword_offset;
+        memory_operand_f    <= memory_operand;
+    end
+end
 
 // main ALU
 assign adder_sum     = adder_operand_a + adder_operand_b;
@@ -149,16 +176,16 @@ end
 // operand select and endianess swap
 always @* begin
   // first read-modify-write 64bit word
-  amo_64b_result = amo_operand_a_swp;
+  amo_64b_result = amo_operand_a_swp_f;
   case (data_size)
     `MSG_DATA_SIZE_1B: begin
-      amo_64b_result[address[2:0]*8 +: 8]     = amo_64b_tmp[56 +: 8];
+      amo_64b_result[address_f[2:0]*8 +: 8]     = amo_64b_tmp[56 +: 8];
     end
     `MSG_DATA_SIZE_2B: begin
-        amo_64b_result[address[2:1]*16 +: 16]  = amo_64b_tmp[48 +: 16];
+        amo_64b_result[address_f[2:1]*16 +: 16]  = amo_64b_tmp[48 +: 16];
      end
     `MSG_DATA_SIZE_4B: begin
-        amo_64b_result[address[2:2]*32 +: 32]  = amo_64b_tmp[32 +: 32];
+        amo_64b_result[address_f[2:2]*32 +: 32]  = amo_64b_tmp[32 +: 32];
     end
     `MSG_DATA_SIZE_8B: begin
         amo_64b_result  = amo_64b_tmp;
@@ -167,9 +194,9 @@ always @* begin
   endcase // data_size
 
   // merge back into memory line
-  amo_result     = memory_operand;
+  amo_result     = memory_operand_f;
   if (SWAP_ENDIANESS) begin
-    amo_result[dword_offset*64 +: 64] = {amo_64b_result[ 0 +:8],
+    amo_result[dword_offset_f*64 +: 64] = {amo_64b_result[ 0 +:8],
                                          amo_64b_result[ 8 +:8],
                                          amo_64b_result[16 +:8],
                                          amo_64b_result[24 +:8],
@@ -178,7 +205,7 @@ always @* begin
                                          amo_64b_result[48 +:8],
                                          amo_64b_result[56 +:8]};
   end else begin
-    amo_result[dword_offset*64 +: 64] = amo_64b_result;
+    amo_result[dword_offset_f*64 +: 64] = amo_64b_result;
   end
 end
 

@@ -278,6 +278,7 @@ wire msg_from_mshr_S1;
 wire [`PHY_ADDR_WIDTH-1:0] addr_S1;
 wire dis_flush_S1;
 
+wire [`MSG_DATA_SIZE_WIDTH-1:0] data_size_S1;
 
 wire [`L2_AMO_ALU_OP_WIDTH-1:0] amo_alu_op_S2;
 
@@ -629,6 +630,7 @@ l2_pipe1_ctrl ctrl(
     .reg_wr_en_S1               (reg_wr_en),
     .reg_wr_addr_type_S1        (reg_wr_addr_type),
 
+    .data_size_S1               (data_size_S1),
 
     .valid_S2                   (valid_S2),    
     .stall_S2                   (stall_S2), 
@@ -794,6 +796,7 @@ l2_pipe1_dpath dpath(
     .stall_S1                   (stall_S1),
     .msg_from_mshr_S1           (msg_from_mshr_S1), 
 
+    .data_size_S1               (data_size_S1),
 
     .state_data_S2              (state_data_out),
     .tag_data_S2                (tag_data_out),

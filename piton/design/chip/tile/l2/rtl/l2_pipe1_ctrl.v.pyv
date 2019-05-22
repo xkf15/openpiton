@@ -205,6 +205,7 @@ module l2_pipe1_ctrl(
     output reg reg_wr_en_S1,
     output reg [`L2_ADDR_TYPE_WIDTH-1:0] reg_wr_addr_type_S1,
 
+    output reg [`MSG_DATA_SIZE_WIDTH-1:0] data_size_S1,
 
     //Outputs from Stage 2
 
