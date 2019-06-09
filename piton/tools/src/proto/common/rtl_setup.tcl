@@ -28,7 +28,7 @@
 # Not intended to be run standalone
 #
 
-set GLOBAL_INCLUDE_DIRS "${DV_ROOT}/design/include ${DV_ROOT}/design/chipset/include"
+set GLOBAL_INCLUDE_DIRS "${DV_ROOT}/design/include ${DV_ROOT}/design/chipset/include ${DV_ROOT}/design/chip/tile/ariane/src/common_cells/include/"
 
 # RTL include files
 set GLOBAL_INCLUDE_FILES [list \
@@ -526,7 +526,8 @@ set CHIP_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_opgroup_multifmt_slice.sv"                \
     "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_pipe_in.sv"                               \
     "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_pipe_out.sv"                              \
-    "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_pipe_fma_inside.sv"                       \
+    "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_pipe_inside_fma.sv"                       \
+    "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_pipe_inside_cast.sv"                      \
     "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_rounding.sv"                              \
     "${DV_ROOT}/design/chip/tile/ariane/src/fpu/src/fpnew_top.sv"                                   \
 ]
@@ -665,12 +666,9 @@ set CHIPSET_RTL_IMPL_FILES [list \
     "${DV_ROOT}/design/chipset/axi_sd_bridge/rtl/spi_master_wishbone_decoder.v" \
     "${DV_ROOT}/design/chipset/axi_sd_bridge/rtl/spi_tx_rx_data.v" \
     "${DV_ROOT}/design/chipset/axi_sd_bridge/rtl/status_register_control.v" \
-    "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/bistable_domain_cross.v" \
     "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/byte_en_reg.v" \
-    "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/edge_detect.v" \
-    "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/generic_dpram.v" \
-    "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/generic_fifo_dc_gray.v" \
-    "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/monostable_domain_cross.v" \
+    "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/cdc_bits.v" \
+    "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/cdc_pulse.v" \
     "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/piton_sd_buffer.v" \
     "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/piton_sd_cache_tag.v" \
     "${DV_ROOT}/design/chipset/noc_sd_bridge/rtl/piton_sd_cache_manager.v" \
@@ -739,7 +737,8 @@ set CHIPSET_IP_FILE_PREFIXES [list \
     "${DV_ROOT}/design/chipset/mc/xilinx/${BOARD}/ip_cores/mig_7series_0/mig_7series_0" \
     "${DV_ROOT}/design/chipset/mc/xilinx/${BOARD}/ip_cores/ddr4_0/ddr4_0" \
     "${DV_ROOT}/design/chipset/mc/xilinx/${BOARD}/ip_cores/mig_7series_axi4/mig_7series_axi4" \
-    "${DV_ROOT}/design/chipset/noc_sd_bridge/xilinx/${BOARD}/ip_cores/sd_fifo/sd_fifo" \
+    "${DV_ROOT}/design/chipset/noc_sd_bridge/xilinx/${BOARD}/ip_cores/sd_data_fifo/sd_data_fifo" \
+    "${DV_ROOT}/design/chipset/noc_sd_bridge/xilinx/${BOARD}/ip_cores/sd_ctrl_fifo/sd_ctrl_fifo" \
     "${DV_ROOT}/design/chipset/noc_sd_bridge/xilinx/${BOARD}/ip_cores/sd_cache_bram/sd_cache_bram" \
     "${DV_ROOT}/design/common/fpga_bridge/common/xilinx/${BOARD}/ip_cores/afifo_w64/afifo_w64" \
     "${DV_ROOT}/design/common/fpga_bridge/fpga_rcv/xilinx/${BOARD}/ip_cores/afifo_w3/afifo_w3" \

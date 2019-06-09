@@ -681,7 +681,7 @@ NIB_SIZE = pow(2, NIB_SIZE_LOG2)
 // Instantiate Cores //
 ///////////////////////
 generate
-if (TILE_TYPE == `SPARC_TILE) begin : g_core
+if (TILE_TYPE == `SPARC_TILE) begin : g_sparc_core
     ////////////////
     // SPARC Core //
     ////////////////
@@ -821,7 +821,10 @@ if (TILE_TYPE == `SPARC_TILE) begin : g_core
     );
 
 
-end else if (TILE_TYPE == `PICORV32_TILE) begin : g_core
+end
+endgenerate
+generate
+if (TILE_TYPE == `PICORV32_TILE) begin : g_picorv32_core
     ///////////////////
     // PicoRV32 Core //
     ///////////////////
@@ -898,7 +901,10 @@ end else if (TILE_TYPE == `PICORV32_TILE) begin : g_core
         .pico_int                           (pico_int)
     );
 
-end else if (TILE_TYPE == `ARIANE_RV64_TILE) begin : g_core
+end
+endgenerate
+generate
+if (TILE_TYPE == `ARIANE_RV64_TILE) begin : g_ariane_core
     //////////////////////
     // Ariane RV64 Core //
     //////////////////////
@@ -1050,7 +1056,11 @@ print(str)
     assign unavailable_o = 1'b0;
 
 `endif
-end else if (TILE_TYPE == `AO486_TILE) begin : g_core
+end
+endgenerate
+generate
+if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
+`ifdef PITON_AO486
     wire [29:0]                    ao486_transducer_mem_address;
     wire [31:0]                    ao486_transducer_mem_writedata;
     wire [ 3:0]                    ao486_transducer_mem_byteenable;
@@ -1193,7 +1203,7 @@ end else if (TILE_TYPE == `AO486_TILE) begin : g_core
         .transducer_l15_req_ack             (transducer_l15_req_ack),
         .ao486_int                          (ao486_int)
     );
-
+`endif // PITON_AO486
 end
 endgenerate
 

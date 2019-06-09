@@ -439,12 +439,10 @@ system system(
     monitor   monitor(
         .clk    (`CHIP_INT_CLK),
         .cmp_gclk  (`CHIP_INT_CLK),
-`ifdef RTL_SPARC0
-        .rst_l     (`SPARC_CORE0.reset_l)
+`ifndef RTL_AO4860
+        .rst_l     (`CORE_REF0.reset_l)
 `else
-`ifdef RTL_AO4860
         .rst_l      (`AO486_CORE0.rst_n)
-`endif
 `endif
         );
 
@@ -502,7 +500,7 @@ system system(
 
 `ifndef VERILATOR
     // T1's TSO monitor, stripped of all L2 references
-    tso_mon tso_mon(`CHIP_INT_CLK, `SPARC_CORE0.reset_l);
+    tso_mon tso_mon(`CHIP_INT_CLK, `CORE_REF0.reset_l);
 `endif
 
     // L15 MONITORS
@@ -551,7 +549,7 @@ system system(
     sas_intf  sas_intf(/*AUTOINST*/
         // Inputs
         .clk       (`CHIP_INT_CLK),      // Templated
-        .rst_l     (`SPARC_CORE0.reset_l));       // Templated
+        .rst_l     (`CORE_REF0.reset_l));       // Templated
 `endif
 `endif
 `endif
@@ -563,7 +561,7 @@ system system(
     sas_tasks sas_tasks(/*AUTOINST*/
         // Inputs
         .clk      (`CHIP_INT_CLK),      // Templated
-        .rst_l        (`SPARC_CORE0.reset_l));       // Templated
+        .rst_l        (`CORE_REF0.reset_l));       // Templated
 `endif
 `endif
 `endif
