@@ -94,50 +94,6 @@ assign ao486_mem_wdata_flipped = {  ao486_transducer_mem_writedata[7:0],
                                     ao486_transducer_mem_writedata[23:16],
                                     ao486_transducer_mem_writedata[31:24]};
 
-localparam ACK_IDLE = 1'b0;
-localparam ACK_WAIT = 1'b1;
-
-reg current_val;
-reg prev_val;
-// is this a new request from the core?
-wire new_request = current_val & ~prev_val;
-always @ (posedge clk)
-begin
-    if (!rst_n) begin
-       current_val <= 1'b0;
-       prev_val <= 1'b0;
-    end
-    else begin
-       current_val <= ao486_transducer_mem_write | ao486_transducer_mem_read;
-       prev_val <= current_val;
-    end
-end 
-
-// are we waiting for an ack
-reg ack_reg;
-reg ack_next;
-always @ (posedge clk) begin
-    if (!rst_n) begin
-        ack_reg <= 1'b0;
-    end
-    else begin
-        ack_reg <= ack_next;
-    end
-end
-
-always @ (*) begin
-    // be careful with these conditionals.
-    if (l15_transducer_ack) begin
-        ack_next = ACK_IDLE;
-    end
-    else if (new_request) begin
-        ack_next = ACK_WAIT;
-    end
-    else begin
-        ack_next = ack_reg;
-    end
-end
-
 reg [1:0] req_size;
 always @* begin
     case (ao486_transducer_mem_byteenable)
@@ -155,18 +111,32 @@ always @* begin
     end
     endcase
 end
+reg transducer_l15_val_reg;
+reg new_request_reg;
+wire new_request; 
+reg l15_transducer_ack_reg;
+assign new_request = ao486_transducer_mem_write | ao486_transducer_mem_read | (double_access & (double_access_counter == 2'b10));
+always @(posedge clk) begin
+    new_request_reg <= new_request;
+    l15_transducer_ack_reg <= l15_transducer_ack;
+    if(~new_request_reg & new_request)
+        transducer_l15_val_reg <= 1'b1;
+    else if(l15_transducer_ack_reg & ~l15_transducer_ack)
+        transducer_l15_val_reg <= 1'b0;
+end
 
-assign transducer_l15_val = (ack_reg == ACK_WAIT) ? ao486_transducer_mem_write | ao486_transducer_mem_read
-                         : (ack_reg == ACK_IDLE) ? new_request
-                         : ao486_transducer_mem_write | ao486_transducer_mem_read;
+assign transducer_l15_val = transducer_l15_val_reg;
 //--- ao486 -> L1.5
 assign transducer_l15_rqtype =  ao486_transducer_mem_write ? `STORE_RQ :
                                 ao486_transducer_mem_read  ? `LOAD_RQ : 
                                 5'b0;
 assign transducer_l15_amo_op = `L15_AMO_OP_NONE;
 assign transducer_l15_size = req_size;
-//assign transducer_l15_address = {{8{ao486_transducer_mem_address[29]}}, ao486_transducer_mem_address, 2'b0};
-assign transducer_l15_address = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0};
+wire [31:0] transducer_l15_address_unshifted;
+assign transducer_l15_address_unshifted = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0};
+wire [1:0] address_offset_byteenable;
+assign address_offset_byteenable = ao486_transducer_mem_byteenable[0] ? 2'b00 : ao486_transducer_mem_byteenable[1] ? 2'b01 : ao486_transducer_mem_byteenable[2] ? 2'b10 : ao486_transducer_mem_byteenable[3] ? 2'b11 : 2'b00;
+// assign transducer_l15_address = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0} + address_offset_byteenable;
 assign transducer_l15_data = {ao486_mem_wdata_flipped, ao486_mem_wdata_flipped};
 assign transducer_l15_nc = ao486_transducer_mem_address[29];
 
@@ -184,7 +154,6 @@ assign transducer_l15_csm_data = 33'b0;
 reg transducer_ao486_mem_readdatavalid_reg;
 reg [31:0] rdata_part;
 reg [1:0] read_count_reg;
-
 // keep track of whether we have received the wakeup interrupt
 reg ao486_int_reg;
 reg int_recv;
@@ -200,8 +169,22 @@ always @ (posedge clk) begin
         ao486_int_reg <= 1'b0;
     end
 end
-       
-assign transducer_ao486_mem_waitrequest = (ao486_transducer_mem_read | ao486_transducer_mem_write) & ~l15_transducer_ack;
+reg double_access_reg;
+reg transducer_ao486_mem_waitrequest_reg;
+always @(posedge clk) begin
+    double_access_reg <= double_access;
+    if(new_request)
+        transducer_ao486_mem_waitrequest_reg <= 1'b1;
+    else if(l15_transducer_val & (read_count_reg == 2'b00))
+        transducer_ao486_mem_waitrequest_reg <= 1'b0;
+    else if(double_access_reg & ~ double_access)
+        transducer_ao486_mem_waitrequest_reg <= 1'b0;
+end
+
+assign transducer_ao486_mem_waitrequest = transducer_ao486_mem_waitrequest_reg;// & ~l15_transducer_ack;
+
+
+// assign transducer_ao486_mem_waitrequest = (ao486_transducer_mem_read | ao486_transducer_mem_write) & ~l15_transducer_ack;
 
 assign transducer_ao486_mem_readdatavalid = transducer_ao486_mem_readdatavalid_reg;
 assign transducer_ao486_mem_readdata = {rdata_part[7:0],
@@ -209,12 +192,15 @@ assign transducer_ao486_mem_readdata = {rdata_part[7:0],
                                         rdata_part[23:16],
                                         rdata_part[31:24]};
 assign transducer_l15_req_ack = l15_transducer_val & (((l15_transducer_returntype == `LOAD_RET) & (read_count_reg == 2'b00)) | (l15_transducer_returntype != `LOAD_RET));
-
+reg double_access;
+reg [1:0] double_access_counter;
+wire [1:0] ao486_burstcount;
+assign ao486_burstcount = (ao486_transducer_mem_burstcount - 1'b1);
 always @(posedge clk) begin
     if (~rst_n) begin
         read_count_reg <= 2'b00;
     end
-    else if (ao486_transducer_mem_read) begin
+    else if (~new_request_reg & new_request) begin
         read_count_reg <= (ao486_transducer_mem_burstcount - 1'b1);
     end
     else if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET) & ~transducer_l15_req_ack) begin
@@ -222,29 +208,113 @@ always @(posedge clk) begin
     end
 end
 
-always @* begin
-    case((~read_count_reg) + transducer_l15_address[3:2])
-    2'b00: begin
-       rdata_part = l15_transducer_data_0[63:32];
+
+always @(*) begin
+    if (~rst_n) begin
+        double_access <= 1'b0;
     end
-    2'b01: begin
-       rdata_part = l15_transducer_data_0[31:0];
+    else if (ao486_transducer_mem_read) begin
+        double_access <= ((ao486_burstcount == 2'b11) & ao486_transducer_mem_address[0]) | ((ao486_burstcount == 2'b11) & ao486_transducer_mem_address[1]) | ((ao486_burstcount == 2'b01) & ao486_transducer_mem_address[1] & ao486_transducer_mem_address[0]);
     end
-    2'b10: begin
-       rdata_part = l15_transducer_data_1[63:32];
+    else if(double_access_counter == 2'b01) begin
+        double_access <= 1'b0;
     end
-    2'b11: begin
-       rdata_part = l15_transducer_data_1[31:0];
-    end
-    endcase 
 end
 
+reg ao486_transducer_mem_read_reg;
+reg transducer_l15_req_ack_reg;
+always@(posedge clk) begin
+    transducer_l15_req_ack_reg <= transducer_l15_req_ack;
+    ao486_transducer_mem_read_reg <= ao486_transducer_mem_read;
+    if(~transducer_l15_req_ack_reg & transducer_l15_req_ack) 
+        double_access_counter <= double_access_counter - 1'b1;
+    else if(~ao486_transducer_mem_read_reg & ao486_transducer_mem_read)
+        double_access_counter <= 2'b11;
+end
+
+wire [31:0] transducer_l15_address_first_access;
+wire [31:0] transducer_l15_address_second_access;
+reg [31:0] transducer_l15_address_reg;
+assign transducer_l15_address_second_access = {{8{1'b0}}, ao486_transducer_mem_address [29:2] + 4'h1, 4'h0};
+assign transducer_l15_address_first_access = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0};
+
+always@(*) begin
+    if(ao486_transducer_mem_read)
+        transducer_l15_address_reg <= transducer_l15_address_first_access;
+    else if(double_access_counter == 2'b10)
+        transducer_l15_address_reg <= transducer_l15_address_second_access;
+end
+
+assign transducer_l15_address = transducer_l15_address_reg;
+wire [2:0] word_select;
+assign word_select = {1'b0, (~read_count_reg)} + {1'b0, transducer_l15_address_first_access[3:2]};
+always @(*) begin
+    if(double_access & l15_transducer_val) begin
+        case(word_select)
+            3'b000: begin
+                rdata_part <= l15_transducer_data_0_buffer_double_access[63:32];
+            end
+            3'b001: begin
+                rdata_part <= l15_transducer_data_0_buffer_double_access[31:0];
+            end
+            3'b010: begin
+                rdata_part <= l15_transducer_data_1_buffer_double_access[63:32];
+            end
+            3'b011: begin
+                rdata_part <= l15_transducer_data_1_buffer_double_access[31:0];
+            end
+             3'b100: begin
+                rdata_part <= l15_transducer_data_2_buffer_double_access[63:32];
+            end
+            3'b101: begin
+                rdata_part <= l15_transducer_data_2_buffer_double_access[31:0];
+            end
+            3'b110: begin
+                rdata_part <= l15_transducer_data_3_buffer_double_access[63:32];
+            end
+        endcase 
+    end
+    else if(~double_access & l15_transducer_val) begin
+        case((~read_count_reg) + transducer_l15_address[3:2])
+            2'b00: begin
+                rdata_part <= l15_transducer_data_0_buffer_double_access[63:32];
+            end
+            2'b01: begin
+                rdata_part <= l15_transducer_data_0_buffer_double_access[31:0];
+            end
+            2'b10: begin
+                rdata_part <= l15_transducer_data_1_buffer_double_access[63:32];
+            end
+            2'b11: begin
+                rdata_part <= l15_transducer_data_1_buffer_double_access[31:0];
+            end
+        endcase 
+    end
+end
+
+reg [63:0] l15_transducer_data_0_buffer_double_access, l15_transducer_data_1_buffer_double_access;
+reg [63:0] l15_transducer_data_2_buffer_double_access, l15_transducer_data_3_buffer_double_access;
+always @(*) begin
+    if(l15_transducer_val & (l15_transducer_returntype == `LOAD_RET) & (double_access_counter == 2'b11))begin
+        l15_transducer_data_0_buffer_double_access <= l15_transducer_data_0;
+        l15_transducer_data_1_buffer_double_access <= l15_transducer_data_1;
+    end
+    else if(l15_transducer_val & (l15_transducer_returntype == `LOAD_RET) & (double_access_counter == 2'b10))begin
+        l15_transducer_data_2_buffer_double_access <= l15_transducer_data_0;
+        l15_transducer_data_3_buffer_double_access <= l15_transducer_data_1;
+    end
+end
+
+
 always @* begin
-    if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET)) begin
-        transducer_ao486_mem_readdatavalid_reg = 1'b1;
+    if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET) & ~double_access) begin
+        transducer_ao486_mem_readdatavalid_reg <= 1'b1;
+    end
+    else if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET) & double_access & (double_access_counter == 2'b10)) begin
+        transducer_ao486_mem_readdatavalid_reg <= 1'b1;
     end
     else begin
-        transducer_ao486_mem_readdatavalid_reg = 1'b0;
+        transducer_ao486_mem_readdatavalid_reg <= 1'b0;
     end
 end
 
