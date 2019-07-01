@@ -88,34 +88,296 @@ module ao486_l15_transducer (
 );
 
 wire [31:0] ao486_mem_wdata_flipped;
+reg [31:0] ao486_transducer_mem_writedata_buffer_0, ao486_transducer_mem_writedata_buffer_1, ao486_transducer_mem_writedata_buffer_2, ao486_transducer_mem_writedata_buffer_3;
+reg [3:0] ao486_transducer_mem_byteenable_buffer_0, ao486_transducer_mem_byteenable_buffer_1, ao486_transducer_mem_byteenable_buffer_2, ao486_transducer_mem_byteenable_buffer_3;
+reg [2:0] write_buf_count_arbit;
+reg write_buf_complete_waitrequest;
 
-assign ao486_mem_wdata_flipped = {  ao486_transducer_mem_writedata[7:0],
-                                    ao486_transducer_mem_writedata[15:8],
-                                    ao486_transducer_mem_writedata[23:16],
-                                    ao486_transducer_mem_writedata[31:24]};
+always @(posedge clk) begin
+    if(~rst_n)
+        write_buf_count_arbit <= 2'b00;
+    else if(ao486_transducer_mem_write & ((write_buf_count_arbit == 2'b00) | (write_buf_count_arbit == 3'b100))) begin
+        ao486_transducer_mem_writedata_buffer_0 <= ao486_transducer_mem_writedata;
+        ao486_transducer_mem_byteenable_buffer_0 <= ao486_transducer_mem_byteenable;
+        write_buf_count_arbit <= write_buf_count_arbit + 1'b1;
+        write_buf_complete_waitrequest <= (ao486_transducer_mem_burstcount == (write_buf_count_arbit + 1'b1)) ? 1'b1 : 1'b0;
+    end
+    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b01)) begin
+        ao486_transducer_mem_writedata_buffer_1 <= ao486_transducer_mem_writedata;
+        ao486_transducer_mem_byteenable_buffer_1 <= ao486_transducer_mem_byteenable;
+        write_buf_count_arbit <= (write_buf_complete_waitrequest) ? write_buf_count_arbit : write_buf_count_arbit + 1'b1;
+        write_buf_complete_waitrequest <= (ao486_transducer_mem_burstcount == (write_buf_count_arbit + 1'b1)) ? 1'b1 : 1'b0;
+    end
+    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b10)) begin
+        ao486_transducer_mem_writedata_buffer_2 <= ao486_transducer_mem_writedata;
+        ao486_transducer_mem_byteenable_buffer_2 <= ao486_transducer_mem_byteenable;
+        write_buf_count_arbit <= (write_buf_complete_waitrequest) ? write_buf_count_arbit : write_buf_count_arbit + 1'b1;
+        write_buf_complete_waitrequest <= (ao486_transducer_mem_burstcount == (write_buf_count_arbit + 1'b1)) ? 1'b1 : 1'b0;
+    end
+    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b11)) begin
+        ao486_transducer_mem_writedata_buffer_3 <= ao486_transducer_mem_writedata;
+        ao486_transducer_mem_byteenable_buffer_3 <= ao486_transducer_mem_byteenable;
+        write_buf_count_arbit <= (write_buf_complete_waitrequest) ? write_buf_count_arbit : write_buf_count_arbit + 1'b1;
+        write_buf_complete_waitrequest <= (ao486_transducer_mem_burstcount == (write_buf_count_arbit + 1'b1)) ? 1'b1 : 1'b0;
+    end
+end
 
-reg [1:0] req_size;
+wire [31:0] ao486_transducer_mem_writedata_buffer_0_flipped, ao486_transducer_mem_writedata_buffer_1_flipped, ao486_transducer_mem_writedata_buffer_2_flipped, ao486_transducer_mem_writedata_buffer_3_flipped;
+wire [3:0] ao486_transducer_mem_byteenable_buffer_0_flipped, ao486_transducer_mem_byteenable_buffer_1_flipped, ao486_transducer_mem_byteenable_buffer_2_flipped, ao486_transducer_mem_byteenable_buffer_3_flipped;
+
+assign ao486_transducer_mem_writedata_buffer_0_flipped = {  ao486_transducer_mem_writedata_buffer_0[7:0],
+                                                            ao486_transducer_mem_writedata_buffer_0[15:8],
+                                                            ao486_transducer_mem_writedata_buffer_0[23:16],
+                                                            ao486_transducer_mem_writedata_buffer_0[31:24]};
+
+assign ao486_transducer_mem_writedata_buffer_1_flipped = {  ao486_transducer_mem_writedata_buffer_1[7:0],
+                                                            ao486_transducer_mem_writedata_buffer_1[15:8],
+                                                            ao486_transducer_mem_writedata_buffer_1[23:16],
+                                                            ao486_transducer_mem_writedata_buffer_1[31:24]};
+
+assign ao486_transducer_mem_writedata_buffer_2_flipped = {  ao486_transducer_mem_writedata_buffer_2[7:0],
+                                                            ao486_transducer_mem_writedata_buffer_2[15:8],
+                                                            ao486_transducer_mem_writedata_buffer_2[23:16],
+                                                            ao486_transducer_mem_writedata_buffer_2[31:24]};
+
+assign ao486_transducer_mem_writedata_buffer_3_flipped = {  ao486_transducer_mem_writedata_buffer_3[7:0],
+                                                            ao486_transducer_mem_writedata_buffer_3[15:8],
+                                                            ao486_transducer_mem_writedata_buffer_3[23:16],
+                                                            ao486_transducer_mem_writedata_buffer_3[31:24]};
+
+assign ao486_transducer_mem_byteenable_buffer_0_flipped = { ao486_transducer_mem_byteenable_buffer_0[0],
+                                                            ao486_transducer_mem_byteenable_buffer_0[1],
+                                                            ao486_transducer_mem_byteenable_buffer_0[2],
+                                                            ao486_transducer_mem_byteenable_buffer_0[3]};
+
+assign ao486_transducer_mem_byteenable_buffer_1_flipped = { ao486_transducer_mem_byteenable_buffer_1[0],
+                                                            ao486_transducer_mem_byteenable_buffer_1[1],
+                                                            ao486_transducer_mem_byteenable_buffer_1[2],
+                                                            ao486_transducer_mem_byteenable_buffer_1[3]};
+
+assign ao486_transducer_mem_byteenable_buffer_2_flipped = { ao486_transducer_mem_byteenable_buffer_2[0],
+                                                            ao486_transducer_mem_byteenable_buffer_2[1],
+                                                            ao486_transducer_mem_byteenable_buffer_2[2],
+                                                            ao486_transducer_mem_byteenable_buffer_2[3]};
+
+assign ao486_transducer_mem_byteenable_buffer_3_flipped = { ao486_transducer_mem_byteenable_buffer_3[0],
+                                                            ao486_transducer_mem_byteenable_buffer_3[1],
+                                                            ao486_transducer_mem_byteenable_buffer_3[2],
+                                                            ao486_transducer_mem_byteenable_buffer_3[3]};
+
+reg [31:0] ao486_transducer_mem_writedata_buffer_arbit;
+reg [3:0] ao486_transducer_mem_byteenable_buffer_arbit;
+always @(*) begin
+    case(write_submit_count_arbit) 
+        3'b000: ao486_transducer_mem_writedata_buffer_arbit = ao486_transducer_mem_writedata_buffer_0_flipped;
+        3'b001: ao486_transducer_mem_writedata_buffer_arbit = ao486_transducer_mem_writedata_buffer_1_flipped;
+        3'b010: ao486_transducer_mem_writedata_buffer_arbit = ao486_transducer_mem_writedata_buffer_2_flipped;
+        3'b011: ao486_transducer_mem_writedata_buffer_arbit = ao486_transducer_mem_writedata_buffer_3_flipped;
+    endcase
+end
+
+always @(*) begin
+    case(write_submit_count_arbit) 
+        3'b000: ao486_transducer_mem_byteenable_buffer_arbit = ao486_transducer_mem_byteenable_buffer_0_flipped;
+        3'b001: ao486_transducer_mem_byteenable_buffer_arbit = ao486_transducer_mem_byteenable_buffer_1_flipped;
+        3'b010: ao486_transducer_mem_byteenable_buffer_arbit = ao486_transducer_mem_byteenable_buffer_2_flipped;
+        3'b011: ao486_transducer_mem_byteenable_buffer_arbit = ao486_transducer_mem_byteenable_buffer_3_flipped;
+    endcase
+end
+reg [2:0] req_size_write;
+reg [31:0] transducer_l15_address_reg_write;
+reg [31:0] transducer_l15_data_reg_write;
+reg [2:0] transducer_l15_req_size_reg_write;
+reg [1:0] write_reg_count;
+reg double_transfer_reg;
+reg [2:0] req_size_double_transfer;
+reg [31:0] ao486_transducer_mem_address_write_reg;
+reg [31:0] ao486_transducer_mem_address_write_reg_double_transfer;
+reg [31:0] ao486_transducer_mem_write_data_reg;
+reg [31:0] ao486_transducer_mem_write_data_reg_double_transfer;
+
+always @(posedge clk) begin
+    if(ao486_l15_write) begin
+    case (ao486_transducer_mem_byteenable_buffer_arbit) 
+        4'b0001, 4'b0010, 4'b0100, 4'b1000: begin
+            req_size_write <= `PCX_SZ_1B;
+                case(ao486_transducer_mem_byteenable_buffer_arbit) 
+                    4'b0001: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf + 2'd3);
+                        ao486_transducer_mem_write_data_reg <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[7:0]};
+                    end
+                    4'b0010: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf + 2'd2);
+                        ao486_transducer_mem_write_data_reg <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[15:8]};
+                    end
+                    4'b0100: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf + 2'd1);
+                        ao486_transducer_mem_write_data_reg <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[23:16]};
+                    end
+                    4'b1000: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf);
+                        ao486_transducer_mem_write_data_reg <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[31:24]};
+                    end
+                endcase
+        end
+
+        4'b0011, 4'b1100: begin
+            req_size_write <= `PCX_SZ_2B;
+                case(ao486_transducer_mem_byteenable_buffer_arbit) 
+                    4'b0011: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf + 2'd2);
+                        ao486_transducer_mem_write_data_reg <= {16'b0,ao486_transducer_mem_writedata_buffer_arbit[15:0]};
+                    end
+                    4'b1100: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf);
+                        ao486_transducer_mem_write_data_reg <= {16'b0,ao486_transducer_mem_writedata_buffer_arbit[31:16]};
+                    end
+                endcase
+        end
+
+        4'b1111: begin
+            req_size_write <= `PCX_SZ_4B;
+            ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf);
+            ao486_transducer_mem_write_data_reg <= ao486_transducer_mem_writedata_buffer_arbit;
+        end
+
+        4'b0111, 4'b1110: begin
+            req_size_write <= `PCX_SZ_1B;
+            req_size_double_transfer <= `PCX_SZ_2B;
+            double_transfer_reg <= 1'b1;
+                case(ao486_transducer_mem_byteenable_buffer_arbit) 
+                    4'b0111: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf + 2'd1);
+                        ao486_transducer_mem_address_write_reg_double_transfer <= (transducer_l15_address_reg_write_buf + 2'd2);
+                        ao486_transducer_mem_write_data_reg <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[23:16]};
+                        ao486_transducer_mem_write_data_reg_double_transfer <= {16'b0,ao486_transducer_mem_writedata_buffer_arbit[15:0]};
+                    end
+                    4'b1110: begin
+                        ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf + 2'd2);
+                        ao486_transducer_mem_address_write_reg_double_transfer <= (transducer_l15_address_reg_write_buf);
+                        ao486_transducer_mem_write_data_reg <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[15:8]};
+                        ao486_transducer_mem_write_data_reg_double_transfer <= {16'b0,ao486_transducer_mem_writedata_buffer_arbit[31:16]};
+                    end
+                endcase
+        end
+        
+        4'b0110: begin
+            req_size_write <= `PCX_SZ_1B;
+            req_size_double_transfer <= `PCX_SZ_1B;
+            double_transfer_reg <= 1'b1;
+            ao486_transducer_mem_address_write_reg <= (transducer_l15_address_reg_write_buf + 2'd1);
+            ao486_transducer_mem_address_write_reg_double_transfer <= (transducer_l15_address_reg_write_buf + 2'd2);
+            ao486_transducer_mem_write_data_reg <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[23:16]};
+            ao486_transducer_mem_write_data_reg_double_transfer <= {24'b0, ao486_transducer_mem_writedata_buffer_arbit[15:8]};
+        end
+    endcase
+    end
+end
+
+reg [1:0] req_type_ao486;
+
+always @(*) begin
+if(~rst_n)
+    req_type_ao486 = 2'b00;
+else if(new_request & ~ao486_l15_write)
+    req_type_ao486 = ao486_transducer_mem_write ? 2'b11 : ao486_transducer_mem_read ? 2'b10 : 2'b00;
+end
+reg ao486_transducer_mem_write_reg;
+reg ao486_l15_write;
+reg [2:0] write_submit_count_arbit;
+always @(posedge clk) begin
+if(ao486_l15_write) begin
+    if(~ao486_transducer_mem_write_reg & ao486_transducer_mem_write) begin
+        write_submit_count_arbit <= 3'b000;
+        write_reg_count <= 2'b00;
+    end
+    else if(l15_transducer_ack & ~double_transfer_reg) begin
+        write_submit_count_arbit <= write_submit_count_arbit + 1'b1;
+        write_reg_count <= 2'b00;
+    end
+    else if(l15_transducer_ack & double_transfer_reg) begin
+        write_reg_count <= write_reg_count + 1'b1;
+    end
+    else if(l15_transducer_ack & double_transfer_reg & (write_reg_count == 2'b10)) begin
+        write_reg_count <= 2'b00;
+        write_submit_count_arbit <= write_submit_count_arbit + 1'b1;
+    end
+    end
+end
+
+always @(posedge clk) begin
+    ao486_transducer_mem_write_reg <= ao486_transducer_mem_write;
+    if(~ao486_transducer_mem_write_reg & ao486_transducer_mem_write) begin
+        ao486_l15_write <= 1'b1;
+    end
+    else if(l15_transducer_ack & (write_submit_count_arbit == (write_buf_count_arbit))) begin
+        ao486_l15_write <= 1'b0;
+        write_buf_count_arbit <= 3'b000;
+        write_buf_complete_waitrequest <= 1'b0;
+    end
+end
+
+always @(posedge clk) begin
+    if(ao486_l15_write & ~double_transfer_reg & write_buf_complete_waitrequest) begin
+        transducer_l15_address_reg_write <= ao486_transducer_mem_address_write_reg;
+        transducer_l15_data_reg_write <= ao486_transducer_mem_write_data_reg;
+        transducer_l15_req_size_reg_write <= req_size_write;
+        transducer_l15_val_reg_write <= 1'b1;
+    end
+    else if(ao486_l15_write & double_transfer_reg & (write_reg_count == 2'b00) & write_buf_complete_waitrequest) begin
+        transducer_l15_address_reg_write <= ao486_transducer_mem_address_write_reg;
+        transducer_l15_data_reg_write <= ao486_transducer_mem_write_data_reg;
+        transducer_l15_req_size_reg_write <= req_size_write;
+        transducer_l15_val_reg_write <= 1'b1;
+    end
+    else if(ao486_l15_write & double_transfer_reg & (write_reg_count == 2'b01) & write_buf_complete_waitrequest) begin
+        transducer_l15_address_reg_write <= ao486_transducer_mem_address_write_reg_double_transfer;
+        transducer_l15_data_reg_write <= ao486_transducer_mem_write_data_reg_double_transfer;
+        transducer_l15_req_size_reg_write <= req_size_double_transfer;
+        transducer_l15_val_reg_write <= 1'b1;
+    end
+end
+
+
+always @(posedge clk) begin
+    if(l15_transducer_ack & (write_reg_count == 2'b01))
+        double_transfer_reg <= 1'b0;
+end
+
+always @(posedge clk) begin
+    if(ao486_transducer_mem_write)
+        transducer_l15_address_reg_write_buf <= transducer_l15_address_first_access;
+    else if(l15_transducer_ack & ao486_l15_write)
+        transducer_l15_address_reg_write_buf <= transducer_l15_address_reg_write_buf + 3'd4;
+end
+
+// assign ao486_mem_wdata_flipped = {  ao486_transducer_mem_writedata[7:0],
+//                                     ao486_transducer_mem_writedata[15:8],
+//                                     ao486_transducer_mem_writedata[23:16],
+//                                     ao486_transducer_mem_writedata[31:24]};
+reg [2:0] req_size_read;
 always @* begin
     case (ao486_transducer_mem_byteenable)
     4'b0001, 4'b0010, 4'b0100, 4'b1000: begin
-        req_size = `PCX_SZ_1B;
+        req_size_read = `PCX_SZ_1B;
     end
     4'b0011, 4'b0110, 4'b1100: begin
-        req_size = `PCX_SZ_1B;
+        req_size_read = `PCX_SZ_1B;
     end
     4'b0111, 4'b1110: begin
-        req_size = `PCX_SZ_4B;
+        req_size_read = `PCX_SZ_4B;
     end
     4'b1111: begin
-        req_size = `PCX_SZ_4B;
+        req_size_read = `PCX_SZ_4B;
     end
     endcase
 end
 reg transducer_l15_val_reg;
+reg transducer_l15_val_reg_write;
 reg new_request_reg;
 wire new_request; 
 reg l15_transducer_ack_reg;
-assign new_request = ao486_transducer_mem_write | ao486_transducer_mem_read | (double_access & (double_access_counter == 2'b10));
+assign new_request = ao486_transducer_mem_write | ao486_transducer_mem_read | (double_access & (double_access_counter == 2'b10)) | (double_transfer_reg & (write_reg_count == 2'b01));
 always @(posedge clk) begin
     new_request_reg <= new_request;
     l15_transducer_ack_reg <= l15_transducer_ack;
@@ -125,19 +387,26 @@ always @(posedge clk) begin
         transducer_l15_val_reg <= 1'b0;
 end
 
-assign transducer_l15_val = transducer_l15_val_reg;
+always @(posedge clk) begin
+    if(ao486_l15_write & l15_transducer_ack) begin
+        transducer_l15_val_reg_write <= 1'b0;
+    end
+end
+
+
+assign transducer_l15_val = (req_type_ao486 == 2'b10) ? transducer_l15_val_reg : (req_type_ao486 == 2'b11) ? transducer_l15_val_reg_write : transducer_l15_val_reg;
 //--- ao486 -> L1.5
-assign transducer_l15_rqtype =  ao486_transducer_mem_write ? `STORE_RQ :
+assign transducer_l15_rqtype =  ao486_l15_write ? `STORE_RQ :
                                 ao486_transducer_mem_read  ? `LOAD_RQ : 
                                 5'b0;
 assign transducer_l15_amo_op = `L15_AMO_OP_NONE;
-assign transducer_l15_size = req_size;
+assign transducer_l15_size = (req_type_ao486 == 2'b10) ? req_size_read : (req_type_ao486 == 2'b11) ? transducer_l15_req_size_reg_write : req_size_read;
 wire [31:0] transducer_l15_address_unshifted;
 assign transducer_l15_address_unshifted = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0};
 wire [1:0] address_offset_byteenable;
 assign address_offset_byteenable = ao486_transducer_mem_byteenable[0] ? 2'b00 : ao486_transducer_mem_byteenable[1] ? 2'b01 : ao486_transducer_mem_byteenable[2] ? 2'b10 : ao486_transducer_mem_byteenable[3] ? 2'b11 : 2'b00;
-// assign transducer_l15_address = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0} + address_offset_byteenable;
-assign transducer_l15_data = {ao486_mem_wdata_flipped, ao486_mem_wdata_flipped};
+
+assign transducer_l15_data = {transducer_l15_data_reg_write, transducer_l15_data_reg_write};
 assign transducer_l15_nc = ao486_transducer_mem_address[29];
 
 // unused wires tie to zero
@@ -175,13 +444,13 @@ always @(posedge clk) begin
     double_access_reg <= double_access;
     if(new_request)
         transducer_ao486_mem_waitrequest_reg <= 1'b1;
-    else if(l15_transducer_val & (read_count_reg == 2'b00))
+    else if(l15_transducer_val & (read_count_reg == 2'b00) & ~double_access)
         transducer_ao486_mem_waitrequest_reg <= 1'b0;
-    else if(double_access_reg & ~ double_access)
+    else if(double_access_reg & ~double_access)
         transducer_ao486_mem_waitrequest_reg <= 1'b0;
 end
 
-assign transducer_ao486_mem_waitrequest = transducer_ao486_mem_waitrequest_reg;// & ~l15_transducer_ack;
+assign transducer_ao486_mem_waitrequest = (req_type_ao486 == 2'b10) ? transducer_ao486_mem_waitrequest_reg : (req_type_ao486 == 2'b11) ? write_buf_complete_waitrequest : transducer_ao486_mem_waitrequest_reg ;// & ~l15_transducer_ack;
 
 
 // assign transducer_ao486_mem_waitrequest = (ao486_transducer_mem_read | ao486_transducer_mem_write) & ~l15_transducer_ack;
@@ -231,10 +500,11 @@ always@(posedge clk) begin
     else if(~ao486_transducer_mem_read_reg & ao486_transducer_mem_read)
         double_access_counter <= 2'b11;
 end
-
+reg [31:0] transducer_l15_address_reg_write_buf;
 wire [31:0] transducer_l15_address_first_access;
 wire [31:0] transducer_l15_address_second_access;
 reg [31:0] transducer_l15_address_reg;
+
 assign transducer_l15_address_second_access = {{8{1'b0}}, ao486_transducer_mem_address [29:2] + 4'h1, 4'h0};
 assign transducer_l15_address_first_access = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0};
 
@@ -245,7 +515,7 @@ always@(*) begin
         transducer_l15_address_reg <= transducer_l15_address_second_access;
 end
 
-assign transducer_l15_address = transducer_l15_address_reg;
+assign transducer_l15_address = (req_type_ao486 == 2'b10) ? transducer_l15_address_reg : (req_type_ao486 == 2'b11) ? transducer_l15_address_reg_write : transducer_l15_address_reg;
 wire [2:0] word_select;
 assign word_select = {1'b0, (~read_count_reg)} + {1'b0, transducer_l15_address_first_access[3:2]};
 always @(*) begin
