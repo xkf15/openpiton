@@ -98,25 +98,25 @@ reg write_buf_complete_waitrequest;
 always @(posedge clk) begin
     if(~rst_n)
         write_buf_count_arbit <= 2'b00;
-    else if(ao486_transducer_mem_write & ((write_buf_count_arbit == 2'b00) | (write_buf_count_arbit == 3'b100))) begin
+    else if(ao486_transducer_mem_write & ((write_buf_count_arbit == 2'b00) | (write_buf_count_arbit == 3'b100)) & ~write_buf_complete_waitrequest) begin
         ao486_transducer_mem_writedata_buffer_0 <= ao486_transducer_mem_writedata;
         ao486_transducer_mem_byteenable_buffer_0 <= ao486_transducer_mem_byteenable;
         write_buf_count_arbit <= write_buf_count_arbit + 1'b1;
         write_buf_complete_waitrequest <= (ao486_transducer_mem_burstcount == (write_buf_count_arbit + 1'b1)) ? 1'b1 : 1'b0;
     end
-    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b01)) begin
+    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b01) & ~write_buf_complete_waitrequest) begin
         ao486_transducer_mem_writedata_buffer_1 <= ao486_transducer_mem_writedata;
         ao486_transducer_mem_byteenable_buffer_1 <= ao486_transducer_mem_byteenable;
         write_buf_count_arbit <= (write_buf_complete_waitrequest) ? write_buf_count_arbit : write_buf_count_arbit + 1'b1;
         write_buf_complete_waitrequest <= (ao486_transducer_mem_burstcount == (write_buf_count_arbit + 1'b1)) ? 1'b1 : 1'b0;
     end
-    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b10)) begin
+    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b10) & ~write_buf_complete_waitrequest) begin
         ao486_transducer_mem_writedata_buffer_2 <= ao486_transducer_mem_writedata;
         ao486_transducer_mem_byteenable_buffer_2 <= ao486_transducer_mem_byteenable;
         write_buf_count_arbit <= (write_buf_complete_waitrequest) ? write_buf_count_arbit : write_buf_count_arbit + 1'b1;
         write_buf_complete_waitrequest <= (ao486_transducer_mem_burstcount == (write_buf_count_arbit + 1'b1)) ? 1'b1 : 1'b0;
     end
-    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b11)) begin
+    else if(ao486_transducer_mem_write & (write_buf_count_arbit == 2'b11) & ~write_buf_complete_waitrequest) begin
         ao486_transducer_mem_writedata_buffer_3 <= ao486_transducer_mem_writedata;
         ao486_transducer_mem_byteenable_buffer_3 <= ao486_transducer_mem_byteenable;
         write_buf_count_arbit <= (write_buf_complete_waitrequest) ? write_buf_count_arbit : write_buf_count_arbit + 1'b1;
@@ -289,7 +289,7 @@ reg ao486_l15_write;
 reg [2:0] write_submit_count_arbit;
 always @(posedge clk) begin
 if(ao486_l15_write) begin
-    if(~ao486_transducer_mem_write_reg & ao486_transducer_mem_write) begin
+    if(~ao486_transducer_mem_write_reg & ao486_transducer_mem_write & ~write_buf_complete_waitrequest) begin
         write_submit_count_arbit <= 3'b000;
         write_reg_count <= 2'b00;
     end
@@ -324,24 +324,24 @@ always @(posedge clk) begin
         transducer_l15_address_reg_write <= ao486_transducer_mem_address_write_reg;
         transducer_l15_data_reg_write <= ao486_transducer_mem_write_data_reg;
         transducer_l15_req_size_reg_write <= req_size_write;
-        transducer_l15_val_reg_write <= 1'b1;
     end
     else if(ao486_l15_write & double_transfer_reg & (write_reg_count == 2'b00) & write_buf_complete_waitrequest) begin
         transducer_l15_address_reg_write <= ao486_transducer_mem_address_write_reg;
         transducer_l15_data_reg_write <= ao486_transducer_mem_write_data_reg;
         transducer_l15_req_size_reg_write <= req_size_write;
-        transducer_l15_val_reg_write <= 1'b1;
-    end
+            end
     else if(ao486_l15_write & double_transfer_reg & (write_reg_count == 2'b01) & write_buf_complete_waitrequest) begin
         transducer_l15_address_reg_write <= ao486_transducer_mem_address_write_reg_double_transfer;
         transducer_l15_data_reg_write <= ao486_transducer_mem_write_data_reg_double_transfer;
         transducer_l15_req_size_reg_write <= req_size_double_transfer;
-        transducer_l15_val_reg_write <= 1'b1;
     end
 end
-
+reg write_buf_complete_waitrequest_reg;
 always @(posedge clk) begin
-    if(ao486_l15_write & l15_transducer_ack) begin
+    write_buf_complete_waitrequest_reg <= write_buf_complete_waitrequest;
+    if(~write_buf_complete_waitrequest_reg & write_buf_complete_waitrequest)
+        transducer_l15_val_reg_write <= 1'b1;
+    else if(ao486_l15_write & l15_transducer_ack & (write_buf_count_arbit == (write_submit_count_arbit + 1'b1))) begin
         transducer_l15_val_reg_write <= 1'b0;
     end
 end
@@ -352,7 +352,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if(ao486_transducer_mem_write)
+    if(ao486_transducer_mem_write & ~write_buf_complete_waitrequest)
         transducer_l15_address_reg_write_buf <= transducer_l15_address_first_access;
     else if(l15_transducer_ack & ao486_l15_write)
         transducer_l15_address_reg_write_buf <= transducer_l15_address_reg_write_buf + 3'd4;
@@ -379,8 +379,36 @@ always @* begin
     end
     endcase
 end
+wire reduce_reqtype;
+assign reduce_reqtype = &req_type_ao486;
+reg current_val;
+reg prev_val;
+// is this a new request from the core?
+wire request_read_after_write;
+assign request_read_after_write = ~current_val & prev_val;
+reg request_read_after_write_reg;
+reg read_after_write;
+always @ (posedge clk)
+begin
+    if (!rst_n) begin
+       current_val <= 1'b0;
+       prev_val <= 1'b0;
+    end
+    else begin
+       current_val <= reduce_reqtype;
+       prev_val <= current_val;
+    end
+end 
+always@(posedge clk) begin
+    request_read_after_write_reg <= request_read_after_write;
+    if(~request_read_after_write & request_read_after_write_reg)
+        read_after_write <= 1'b1;
+    else if((double_access_counter == 2'b01))
+        read_after_write <= 1'b0;
+end
 reg transducer_l15_val_reg;
 reg transducer_l15_val_reg_write;
+reg transducer_l15_val_reg_read_after_write;
 reg new_request_reg;
 wire new_request; 
 reg l15_transducer_ack_reg;
@@ -388,11 +416,37 @@ assign new_request = ao486_transducer_mem_write | ao486_transducer_mem_read | ((
 always @(posedge clk) begin
     new_request_reg <= new_request;
     l15_transducer_ack_reg <= l15_transducer_ack;
-    if(~new_request_reg & new_request)
+    if((~new_request_reg & new_request) | request_read_after_write)
         transducer_l15_val_reg <= 1'b1;
     else if(l15_transducer_ack_reg & ~l15_transducer_ack)
         transducer_l15_val_reg <= 1'b0;
 end
+always @(posedge clk) begin
+    if(read_after_write & (double_access_counter == 2'b10))
+        transducer_l15_val_reg_read_after_write <= 1'b1;
+    else if(read_after_write & l15_transducer_ack)
+        transducer_l15_val_reg_read_after_write <= 1'b0;
+end
+// assign transducer_l15_val = (req_type_ao486 == 2'b10) ? transducer_l15_val_reg : (req_type_ao486 == 2'b11) ? transducer_l15_val_reg_write : transducer_l15_val_reg;
+always @(*) begin
+    if((req_type_ao486 == 2'b10) & ~read_after_write) begin
+        transducer_l15_val = transducer_l15_val_reg;
+        transducer_l15_address = transducer_l15_address_reg;
+    end
+    else if((req_type_ao486 == 2'b11)) begin
+        transducer_l15_val = transducer_l15_val_reg_write;
+        transducer_l15_address = transducer_l15_address_reg_write;
+    end
+    else if((req_type_ao486 == 2'b10) & read_after_write & (double_access_counter == 2'b10)) begin
+        transducer_l15_val = transducer_l15_val_reg_read_after_write;
+        transducer_l15_address = transducer_l15_address_second_access;
+    end
+    else begin
+        transducer_l15_val = transducer_l15_val_reg;
+        transducer_l15_address = transducer_l15_address_reg;
+    end
+end
+// assign transducer_l15_address = (req_type_ao486 == 2'b10) ? transducer_l15_address_reg : (req_type_ao486 == 2'b11) ? transducer_l15_address_reg_write : transducer_l15_address_reg;
 
 reg readcode_do_ifill_reg;
 reg ao486_transducer_readcode_do_ifill_reg;
@@ -408,7 +462,6 @@ always @(posedge clk) begin
         readcode_do_ifill_reg <= 1'b0;
 end
 
-assign transducer_l15_val = (req_type_ao486 == 2'b10) ? transducer_l15_val_reg : (req_type_ao486 == 2'b11) ? transducer_l15_val_reg_write : transducer_l15_val_reg;
 //--- ao486 -> L1.5
 assign transducer_l15_rqtype =  ao486_l15_write ? `STORE_RQ :
                                 ao486_l15_read & readcode_do_ifill_reg ? `IMISS_RQ :
@@ -459,7 +512,7 @@ reg transducer_ao486_mem_waitrequest_reg;
 always @(posedge clk) begin
     double_access_reg <= double_access;
     double_access_ifill_reg <= double_access_ifill;
-    if(new_request)
+    if(new_request & ao486_transducer_mem_read)
         transducer_ao486_mem_waitrequest_reg <= 1'b1;
     else if(l15_transducer_val & (read_count_reg == 2'b00) & ~double_access)
         transducer_ao486_mem_waitrequest_reg <= 1'b0;
@@ -489,7 +542,7 @@ always @(posedge clk) begin
     if (~rst_n) begin
         read_count_reg <= 2'b00;
     end
-    else if (~new_request_reg & new_request) begin
+    else if ((~new_request_reg & new_request) | request_read_after_write | ((read_count_reg == 2'b00) & read_after_write)) begin
         read_count_reg <= (ao486_transducer_mem_burstcount - 1'b1);
     end
     else if (l15_transducer_val & ((l15_transducer_returntype == `LOAD_RET) | (l15_transducer_returntype == `IFILL_RET)) & ~transducer_l15_req_ack) begin
@@ -508,7 +561,7 @@ always @(*) begin
     else if (ao486_transducer_mem_read & ~readcode_do_ifill_reg) begin
         double_access = check_double_access;
     end
-    else if (ao486_transducer_mem_read & readcode_do_ifill_reg) begin
+    else if ((ao486_transducer_mem_read & readcode_do_ifill_reg) | request_read_after_write) begin
         double_access_ifill = check_double_access_ifill;
     end
     else if(double_access_counter == 2'b01) begin
@@ -524,9 +577,12 @@ always@(posedge clk) begin
     ao486_transducer_mem_read_reg <= ao486_transducer_mem_read;
     if(~transducer_l15_req_ack_reg & transducer_l15_req_ack) 
         double_access_counter <= double_access_counter - 1'b1;
-    else if(~ao486_transducer_mem_read_reg & ao486_transducer_mem_read)
+    else if(~ao486_transducer_mem_read_reg & ao486_transducer_mem_read) begin
         double_access_counter <= 2'b11;
         ao486_l15_read <= 1'b1;
+    end
+    else if(request_read_after_write)
+        double_access_counter <= 2'b11;
 end
 reg [31:0] transducer_l15_address_reg_write_buf;
 wire [31:0] transducer_l15_address_first_access;
@@ -549,7 +605,7 @@ always@(*) begin
         transducer_l15_address_reg = transducer_l15_address_second_access;
 end
 
-assign transducer_l15_address = (req_type_ao486 == 2'b10) ? transducer_l15_address_reg : (req_type_ao486 == 2'b11) ? transducer_l15_address_reg_write : transducer_l15_address_reg;
+// assign transducer_l15_address = (req_type_ao486 == 2'b10) ? transducer_l15_address_reg : (req_type_ao486 == 2'b11) ? transducer_l15_address_reg_write : transducer_l15_address_reg;
 wire [2:0] word_select;
 // wire [3:0] word_select_ifill;
 assign word_select = {1'b0, (~read_count_reg)} + {1'b0, transducer_l15_address_first_access[3:2]};
