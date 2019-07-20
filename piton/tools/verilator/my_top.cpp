@@ -157,7 +157,7 @@ Verilated::debug(1);
 
 reset_and_init();
 #ifdef VERILATOR_VCD
-for (int i = 0; i < 1500; i++) {
+for (int i = 0; i < 9000; i++) {
     tick();
 }
 std::cout << "Trace done" << std::endl;

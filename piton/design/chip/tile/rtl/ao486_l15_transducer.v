@@ -125,7 +125,7 @@ always @(*) begin
     end
     BUSY: begin
       
-      if (((req_type_reg == READ) & (double_access_counter == 2'b10) & l15_transducer_val & (double_access | double_access_ifill)) | ((req_type_reg == READ) & l15_transducer_val & ~(double_access | double_access_ifill)) | (l15_transducer_val & ao486_l15_write & ~double_transfer_reg & (write_buf_count_arbit == (write_submit_count_arbit + 1'b1)))) begin
+      if (((req_type_reg == READ) & (double_access_counter == 2'b10) & l15_transducer_val & (double_access | double_access_ifill)) | ((req_type_reg == READ) & l15_transducer_val & ~(double_access | double_access_ifill)) | (l15_transducer_val & (req_type_reg == WRITE) & ~double_transfer_reg & (write_buf_count_arbit == (write_submit_count_arbit + 1'b1)))) begin
         if (ao486_transducer_mem_read | ao486_transducer_mem_write) begin
           state_next = NEW;
           req_type_next = ao486_transducer_mem_write ? WRITE : ao486_transducer_mem_read ? READ : IDLE;
