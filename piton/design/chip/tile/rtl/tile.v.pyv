@@ -1083,7 +1083,7 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
     wire [31:0]                    ao486_transducer_io_writedata;
 
     wire                           transducer_ao486_io_waitrequest;
-    wire                           ao486_transducer_readcode_do_ifill;
+    wire [1:0]                     state_transducer;
     wire        ao486_int;
     wire [31:0] eip;
 
@@ -1141,7 +1141,7 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
         .avalon_io_waitrequest      (transducer_ao486_io_waitrequest),
 
         .eip                        (eip),
-        .readcode_do_ifill          (ao486_transducer_readcode_do_ifill)
+        .state_transducer          (state_transducer)
     );
 
     ao486_l15_transducer ao486_l15_transducer(
@@ -1155,7 +1155,7 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
         .ao486_transducer_mem_burstcount    (ao486_transducer_mem_burstcount),
         .ao486_transducer_mem_write         (ao486_transducer_mem_write),
         .ao486_transducer_mem_read          (ao486_transducer_mem_read),
-        .ao486_transducer_readcode_do_ifill (ao486_transducer_readcode_do_ifill),
+        .state_transducer                   (state_transducer),
 
         .transducer_ao486_mem_waitrequest   (transducer_ao486_mem_waitrequest),
         .transducer_ao486_mem_readdatavalid (transducer_ao486_mem_readdatavalid),
