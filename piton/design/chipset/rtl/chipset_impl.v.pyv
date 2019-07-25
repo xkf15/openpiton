@@ -154,6 +154,62 @@ module chipset_impl(
 `endif // endif PITON_FPGA_MC_DDR3
 `endif // endif PITONSYS_NO_MC
 
+    ,
+    // AXI Write Address Channel Signals
+    output wire [`C_M_AXI4_ID_WIDTH     -1:0]    m_axi_awid,
+    output  reg [`C_M_AXI4_ADDR_WIDTH   -1:0]    m_axi_awaddr,
+    output wire [`C_M_AXI4_LEN_WIDTH    -1:0]    m_axi_awlen,
+    output wire [`C_M_AXI4_SIZE_WIDTH   -1:0]    m_axi_awsize,
+    output wire [`C_M_AXI4_BURST_WIDTH  -1:0]    m_axi_awburst,
+    output wire                                  m_axi_awlock,
+    output wire [`C_M_AXI4_CACHE_WIDTH  -1:0]    m_axi_awcache,
+    output wire [`C_M_AXI4_PROT_WIDTH   -1:0]    m_axi_awprot,
+    output wire [`C_M_AXI4_QOS_WIDTH    -1:0]    m_axi_awqos,
+    output wire [`C_M_AXI4_REGION_WIDTH -1:0]    m_axi_awregion,
+    output wire [`C_M_AXI4_USER_WIDTH   -1:0]    m_axi_awuser,
+    output  reg                                  m_axi_awvalid,
+    input  wire                                  m_axi_awready,
+
+    // AXI Write Data Channel Signals
+    output wire  [`C_M_AXI4_ID_WIDTH     -1:0]    m_axi_wid,
+    output  reg  [`C_M_AXI4_DATA_WIDTH   -1:0]    m_axi_wdata,
+    output  reg  [`C_M_AXI4_STRB_WIDTH   -1:0]    m_axi_wstrb,
+    output  reg                                   m_axi_wlast,
+    output wire  [`C_M_AXI4_USER_WIDTH   -1:0]    m_axi_wuser,
+    output  reg                                   m_axi_wvalid,
+    input  wire                                   m_axi_wready,
+
+    // AXI Read Address Channel Signals
+    output wire  [`C_M_AXI4_ID_WIDTH     -1:0]    m_axi_arid,
+    output  reg  [`C_M_AXI4_ADDR_WIDTH   -1:0]    m_axi_araddr,
+    output wire  [`C_M_AXI4_LEN_WIDTH    -1:0]    m_axi_arlen,
+    output wire  [`C_M_AXI4_SIZE_WIDTH   -1:0]    m_axi_arsize,
+    output wire  [`C_M_AXI4_BURST_WIDTH  -1:0]    m_axi_arburst,
+    output wire                                   m_axi_arlock,
+    output wire  [`C_M_AXI4_CACHE_WIDTH  -1:0]    m_axi_arcache,
+    output wire  [`C_M_AXI4_PROT_WIDTH   -1:0]    m_axi_arprot,
+    output wire  [`C_M_AXI4_QOS_WIDTH    -1:0]    m_axi_arqos,
+    output wire  [`C_M_AXI4_REGION_WIDTH -1:0]    m_axi_arregion,
+    output wire  [`C_M_AXI4_USER_WIDTH   -1:0]    m_axi_aruser,
+    output  reg                                   m_axi_arvalid,
+    input  wire                                   m_axi_arready,
+
+    // AXI Read Data Channel Signals
+    input  wire  [`C_M_AXI4_ID_WIDTH     -1:0]    m_axi_rid,
+    input  wire  [`C_M_AXI4_DATA_WIDTH   -1:0]    m_axi_rdata,
+    input  wire  [`C_M_AXI4_RESP_WIDTH   -1:0]    m_axi_rresp,
+    input  wire                                   m_axi_rlast,
+    input  wire  [`C_M_AXI4_USER_WIDTH   -1:0]    m_axi_ruser,
+    input  wire                                   m_axi_rvalid,
+    output  reg                                   m_axi_rready,
+
+    // AXI Write Response Channel Signals
+    input  wire  [`C_M_AXI4_ID_WIDTH     -1:0]    m_axi_bid,
+    input  wire  [`C_M_AXI4_RESP_WIDTH   -1:0]    m_axi_bresp,
+    input  wire  [`C_M_AXI4_USER_WIDTH   -1:0]    m_axi_buser,
+    input  wire                                   m_axi_bvalid,
+    output  reg                                   m_axi_bready
+
 `ifdef PITONSYS_IOCTRL
 `ifdef PITONSYS_UART
     ,
@@ -627,7 +683,7 @@ credit_to_valrdy noc3_xbar_to_%s(
 `ifndef PITONSYS_NO_MC
 // Memory controller.  Either uses "fake" simulated
 // memory controller or FPGA memory controllers
-`ifdef PITON_FPGA_MC_DDR3
+`ifndef PITON_FPGA_MC_DDR3
 mc_top mc_top(
     .mc_ui_clk_sync_rst(mc_ui_clk_sync_rst),
 
@@ -645,35 +701,87 @@ mc_top mc_top(
 
     .uart_boot_en(uart_boot_en),
 
-`ifdef VCU118_BOARD
-    .sys_clk_p(mc_clk_p),
-    .sys_clk_n(mc_clk_n),
-    .ddr_act_n(ddr_act_n),
-    .ddr_bg(ddr_bg),
-`else // VCU118_BOARD
-    .sys_clk(mc_clk),
-    .ddr_cas_n(ddr_cas_n),
-    .ddr_ras_n(ddr_ras_n),
-    .ddr_we_n(ddr_we_n),
-`endif
+//`ifdef VCU118_BOARD
+//    .sys_clk_p(mc_clk_p),
+//    .sys_clk_n(mc_clk_n),
+//    .ddr_act_n(ddr_act_n),
+//    .ddr_bg(ddr_bg),
+//`else // VCU118_BOARD
+//    .sys_clk(mc_clk),
+//    .ddr_cas_n(ddr_cas_n),
+//    .ddr_ras_n(ddr_ras_n),
+//    .ddr_we_n(ddr_we_n),
+//`endif
+//
+//    .ddr_addr(ddr_addr),
+//    .ddr_ba(ddr_ba),
+//    .ddr_ck_n(ddr_ck_n),
+//    .ddr_ck_p(ddr_ck_p),
+//    .ddr_cke(ddr_cke),
+//    .ddr_reset_n(ddr_reset_n),
+//    .ddr_dq(ddr_dq),
+//    .ddr_dqs_n(ddr_dqs_n),
+//    .ddr_dqs_p(ddr_dqs_p),
+//`ifndef NEXYSVIDEO_BOARD
+//    .ddr_cs_n(ddr_cs_n),
+//`endif // endif NEXYSVIDEO_BOARD
+//    .ddr_dm(ddr_dm),
+//    .ddr_odt(ddr_odt),
+//
+//    .init_calib_complete_out(init_calib_complete)
+    .m_axi_awid(m_axi_awid),
+    .m_axi_awaddr(m_axi_awaddr),
+    .m_axi_awlen(m_axi_awlen),
+    .m_axi_awsize(m_axi_awsize),
+    .m_axi_awburst(m_axi_awburst),
+    .m_axi_awlock(m_axi_awlock),
+    .m_axi_awcache(m_axi_awcache),
+    .m_axi_awprot(m_axi_awprot),
+    .m_axi_awqos(m_axi_awqos),
+    .m_axi_awregion(m_axi_awregion),
+    .m_axi_awuser(m_axi_awuser),
+    .m_axi_awvalid(m_axi_awvalid),
+    .m_axi_awready(m_axi_awready),
 
-    .ddr_addr(ddr_addr),
-    .ddr_ba(ddr_ba),
-    .ddr_ck_n(ddr_ck_n),
-    .ddr_ck_p(ddr_ck_p),
-    .ddr_cke(ddr_cke),
-    .ddr_reset_n(ddr_reset_n),
-    .ddr_dq(ddr_dq),
-    .ddr_dqs_n(ddr_dqs_n),
-    .ddr_dqs_p(ddr_dqs_p),
-`ifndef NEXYSVIDEO_BOARD
-    .ddr_cs_n(ddr_cs_n),
-`endif // endif NEXYSVIDEO_BOARD
-    .ddr_dm(ddr_dm),
-    .ddr_odt(ddr_odt),
+    .m_axi_wid(m_axi_wid),
+    .m_axi_wdata(m_axi_wdata),
+    .m_axi_wstrb(m_axi_wstrb),
+    .m_axi_wlast(m_axi_wlast),
+    .m_axi_wuser(m_axi_wuser),
+    .m_axi_wvalid(m_axi_wvalid),
+    .m_axi_wready(m_axi_wready),
 
-    .init_calib_complete_out(init_calib_complete)
+    .m_axi_bid(m_axi_bid),
+    .m_axi_bresp(m_axi_bresp),
+    .m_axi_buser(m_axi_buser),
+    .m_axi_bvalid(m_axi_bvalid),
+    .m_axi_bready(m_axi_bready),
+
+    .m_axi_arid(m_axi_arid),
+    .m_axi_araddr(m_axi_araddr),
+    .m_axi_arlen(m_axi_arlen),
+    .m_axi_arsize(m_axi_arsize),
+    .m_axi_arburst(m_axi_arburst),
+    .m_axi_arlock(m_axi_arlock),
+    .m_axi_arcache(m_axi_arcache),
+    .m_axi_arprot(m_axi_arprot),
+    .m_axi_arqos(m_axi_arqos),
+    .m_axi_arregion(m_axi_arregion),
+    .m_axi_aruser(m_axi_aruser),
+    .m_axi_arvalid(m_axi_arvalid),
+    .m_axi_arready(m_axi_arready),
+
+    .m_axi_rid(m_axi_rid),
+    .m_axi_rdata(m_axi_rdata),
+    .m_axi_rresp(m_axi_rresp),
+    .m_axi_rlast(m_axi_rlast),
+    .m_axi_ruser(m_axi_ruser),
+    .m_axi_rvalid(m_axi_rvalid),
+    .m_axi_rready(m_axi_rready)
 );
+
+assign init_calib_complete = 1'b1;
+
 `else
 
 `include "cross_module.tmp.h"
@@ -897,45 +1005,33 @@ assign uart_interrupt = 1'b0;
 
 // Fake iobridge
 // Tie noc1 input low because it's unused
-assign intf_chipset_rdy_noc1 = 1'b0;
-ciop_fake_iob ciop_fake_iob(
-    .noc_out_val       ( iob_filter_noc2_valid ),
-    .noc_out_rdy       ( filter_iob_noc2_ready ),
-    .noc_out_data      ( iob_filter_noc2_data  ),
+ciop_iob ciop_iob     (
+    .chip_clk        ( chipset_clk           ),
+    .fpga_clk        ( chipset_clk           ),
+    .rst_n           ( ciop_iob_rst_n        ),
 
-    <%
-        text = r'''
-        `ifdef RTL_SPARC0
-          .spc0_inst_done    (`TOP_MOD.monitor.pc_cmp.spc0_inst_done),
-          .pc_w0             (`PCPATH0.fdp.pc_w),
-        `endif
-        `ifdef RTL_PICO0
-          .spc0_inst_done    (1'b1),
-          .pc_w0             ({17'b0, `PICO_CORE0.reg_pc}),
-        `endif
-        `ifdef RTL_ARIANE0
-          .spc0_inst_done    ( `ARIANE_CORE0.piton_pc_vld   ),
-          .pc_w0             ( `ARIANE_CORE0.piton_pc[48:0] ),
-        `endif
-        '''
+    .noc1_in_val     ( intf_chipset_val_noc1 ),
+    .noc1_in_data    ( intf_chipset_data_noc1),
+    .noc1_in_rdy     ( intf_chipset_rdy_noc1 ),
 
-        for i in range (NUM_TILES): # extend this later
-        #for i in range (8):
-            text2 = text;
-            text2 = text2.replace("PICO_CORE0", "PICO_CORE" + `i`);
-            text2 = text2.replace("ARIANE_CORE0", "ARIANE_CORE" + `i`);
-            text2 = text2.replace("RTL_ARIANE0", "RTL_ARIANE" + `i`);
-            text2 = text2.replace("RTL_SPARC0", "RTL_SPARC" + `i`);
-            text2 = text2.replace("RTL_PICO0", "RTL_PICO" + `i`);
-            text2 = text2.replace("spc0_inst_done", "spc" + `i` + "_inst_done");
-            text2 = text2.replace("pc_w0", "pc_w" + `i`);
-            text2 = text2.replace("PCPATH0", "PCPATH" + `i`);
-            text2 = text2.replace("tile0", "tile" + `i`);
-            print text2;
-    %>
-    .clk               (chipset_clk),
-    .rst_n             (chipset_rst_n)
-//    .rst_n             (`SPARC_CORE0.reset_l)
+    .noc2_out_val    ( iob_filter_noc2_valid ),
+    .noc2_out_data   ( iob_filter_noc2_data  ),
+    .noc2_out_rdy    ( filter_iob_noc2_ready ),
+
+    .noc3_in_val     ( filter_iob_noc3_valid ),
+    .noc3_in_data    ( filter_iob_noc3_data  ),
+    .noc3_in_rdy     ( iob_filter_noc3_ready ),
+
+    .noc2_in_val     ( buf_iob_noc2_valid    ),
+    .noc2_in_data    ( buf_iob_noc2_data     ),
+    .noc2_in_rdy     ( iob_buf_noc2_ready    ),
+
+    .noc3_out_val    ( iob_buf_noc3_valid    ),
+    .noc3_out_data   ( iob_buf_noc3_data     ),
+    .noc3_out_rdy    ( buf_iob_noc3_ready    ),
+
+    .uart_interrupt ( uart_interrupt         ),
+    .net_interrupt  ( net_interrupt          )
 );
 
 // I/O AXI splitter, needed for uart-hello-world.s

@@ -139,6 +139,51 @@ module chip(
    output                                       offchip_processor_noc3_yummy
 `endif // endif PITON_NO_CHIP_BRIDGE
 
+    ,
+    input [4:0]                             transducer_l15_rqtype,
+    input [`L15_AMO_OP_WIDTH-1:0]           transducer_l15_amo_op,
+    input                                   transducer_l15_nc,
+    input [2:0]                             transducer_l15_size,
+    input [`L15_THREADID_MASK]              transducer_l15_threadid,
+    input                                   transducer_l15_prefetch,
+    input                                   transducer_l15_invalidate_cacheline,
+    input                                   transducer_l15_blockstore,
+    input                                   transducer_l15_blockinitstore,
+    input [1:0]                             transducer_l15_l1rplway,
+    input                                   transducer_l15_val,
+    input [39:0]                            transducer_l15_address,
+    input [63:0]                            transducer_l15_data,
+    input [63:0]                            transducer_l15_data_next_entry,
+    input [`TLB_CSM_WIDTH-1:0]              transducer_l15_csm_data,
+
+    output                                  l15_transducer_ack,
+    output                                  l15_transducer_header_ack,
+
+    output                                  l15_transducer_val,
+    output [3:0]                            l15_transducer_returntype,
+    output                                  l15_transducer_l2miss,
+    output [1:0]                            l15_transducer_error,
+    output                                  l15_transducer_noncacheable,
+    output                                  l15_transducer_atomic,
+    output [`L15_THREADID_MASK]             l15_transducer_threadid,
+    output                                  l15_transducer_prefetch,
+    output                                  l15_transducer_f4b,
+    output [63:0]                           l15_transducer_data_0,
+    output [63:0]                           l15_transducer_data_1,
+    output [63:0]                           l15_transducer_data_2,
+    output [63:0]                           l15_transducer_data_3,
+    output                                  l15_transducer_inval_icache_all_way,
+    output                                  l15_transducer_inval_dcache_all_way,
+    output [15:4]                           l15_transducer_inval_address_15_4,
+    output                                  l15_transducer_cross_invalidate,
+    output [1:0]                            l15_transducer_cross_invalidate_way,
+    output                                  l15_transducer_inval_dcache_inval,
+    output                                  l15_transducer_inval_icache_inval,
+    output [1:0]                            l15_transducer_inval_way,
+    output                                  l15_transducer_blockinitstore,
+
+    input                                   transducer_l15_req_ack
+
 `ifdef PITON_ARIANE
     ,
     // Debug
@@ -1045,6 +1090,50 @@ module chip(
         .ipi_i               ( ipi_i[_FLAT_ID_]         ),
         .irq_i               ( irq_i[_FLAT_ID_*2 +: 2]  ),
     `endif
+        .l15_transducer_ack                 (l15_transducer_ack),
+        .l15_transducer_header_ack          (l15_transducer_header_ack),
+
+        .transducer_l15_rqtype              (transducer_l15_rqtype),
+        .transducer_l15_amo_op              (transducer_l15_amo_op),
+        .transducer_l15_size                (transducer_l15_size),
+        .transducer_l15_val                 (transducer_l15_val),
+        .transducer_l15_address             (transducer_l15_address),
+        .transducer_l15_data                (transducer_l15_data),
+
+        .transducer_l15_nc                  (transducer_l15_nc),
+        .transducer_l15_threadid            (transducer_l15_threadid),
+        .transducer_l15_prefetch            (transducer_l15_prefetch),
+        .transducer_l15_blockstore          (transducer_l15_blockstore),
+        .transducer_l15_blockinitstore      (transducer_l15_blockinitstore),
+        .transducer_l15_l1rplway            (transducer_l15_l1rplway),
+        .transducer_l15_invalidate_cacheline(transducer_l15_invalidate_cacheline),
+        .transducer_l15_csm_data            (transducer_l15_csm_data),
+        .transducer_l15_data_next_entry     (transducer_l15_data_next_entry),
+
+        .l15_transducer_val                 (l15_transducer_val),
+        .l15_transducer_returntype          (l15_transducer_returntype),
+        .l15_transducer_l2miss              (l15_transducer_l2miss),
+        .l15_transducer_error               (l15_transducer_error),
+        .l15_transducer_noncacheable        (l15_transducer_noncacheable),
+        .l15_transducer_atomic              (l15_transducer_atomic),
+        .l15_transducer_threadid            (l15_transducer_threadid),
+        .l15_transducer_prefetch            (l15_transducer_prefetch),
+        .l15_transducer_f4b                 (l15_transducer_f4b),
+        .l15_transducer_data_0              (l15_transducer_data_0),
+        .l15_transducer_data_1              (l15_transducer_data_1),
+        .l15_transducer_data_2              (l15_transducer_data_2),
+        .l15_transducer_data_3              (l15_transducer_data_3),
+        .l15_transducer_inval_icache_all_way(l15_transducer_inval_icache_all_way),
+        .l15_transducer_inval_dcache_all_way(l15_transducer_inval_dcache_all_way),
+        .l15_transducer_inval_address_15_4  (l15_transducer_inval_address_15_4),
+        .l15_transducer_cross_invalidate    (l15_transducer_cross_invalidate),
+        .l15_transducer_cross_invalidate_way(l15_transducer_cross_invalidate_way),
+        .l15_transducer_inval_dcache_inval  (l15_transducer_inval_dcache_inval),
+        .l15_transducer_inval_icache_inval  (l15_transducer_inval_icache_inval),
+        .l15_transducer_inval_way           (l15_transducer_inval_way),
+        .l15_transducer_blockinitstore      (l15_transducer_blockinitstore),
+
+        .transducer_l15_req_ack             (transducer_l15_req_ack),
         // ucb from tiles to jtag
         .tile_jtag_ucb_val   ( tile0_jtag_ucb_val      ),
         .tile_jtag_ucb_data  ( tile0_jtag_ucb_data     ),
@@ -1120,7 +1209,7 @@ module chip(
             elif (PITON_ARIANE):
                 currenttile = currenttile.replace("TYPE_OF_TILE", "`ARIANE_RV64_TILE")
             else:
-                currenttile = currenttile.replace("TYPE_OF_TILE", "`SPARC_TILE")
+                currenttile = currenttile.replace("TYPE_OF_TILE", "`NO_CORE_TILE")
 
             if (NETWORK_CONFIG == "xbar_config"):
                 currenttile = currenttile.replace("in_", "xbar_%d_out_" % i);

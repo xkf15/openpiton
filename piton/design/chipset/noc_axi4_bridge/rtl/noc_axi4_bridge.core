@@ -1,11 +1,13 @@
 CAPI=2:
-name: openpiton::memory_controller:0.1
-description: OpenPiton Chipset Memory Controller
+name: openpiton::noc_axi4_bridge:0.1
+description: OpenPiton P-Mesh NoC to AXI4 bridge
 
 filesets:
     rtl:
         files:
-            - mc_top.v
+            - noc_axi4_bridge.v
+        depend:
+            - openpiton::piton_include
         file_type: verilogSource-2001
 
 targets:
@@ -14,14 +16,14 @@ targets:
     pickle:
         default_tool: icarus
         filesets: [rtl]
-        toplevel: [mc_top]
+        toplevel: [noc_axi4_bridge]
         tools:
             icarus:
                 iverilog_options: [-g 2001 -E]
     verify:
         default_tool: icarus
         filesets: [rtl]
-        toplevel: [mc_top]
+        toplevel: [noc_axi4_bridge]
         tools:
             icarus:
                 iverilog_options: [-g 2001]

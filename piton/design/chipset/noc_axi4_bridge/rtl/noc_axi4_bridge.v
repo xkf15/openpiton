@@ -53,12 +53,12 @@ module noc_axi4_bridge (
     // Memory Splitter -> AXI SPI
     input  wire                                   splitter_bridge_val,
     input  wire [`NOC_DATA_WIDTH-1:0]             splitter_bridge_data,
-    output wire                                   splitter_bridge_rdy,
+    output  wire                                   bridge_splitter_rdy,
 
     // Memory Splitter <- AXI SPI
     output  reg                                   bridge_splitter_val,
     output  reg  [`NOC_DATA_WIDTH-1:0]            bridge_splitter_data,
-    input  wire                                   bridge_splitter_rdy,
+    input wire                                   splitter_bridge_rdy,
 
     // AXI Write Address Channel Signals
     output wire [`C_M_AXI4_ID_WIDTH     -1:0]    m_axi_awid,

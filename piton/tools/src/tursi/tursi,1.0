@@ -80,6 +80,7 @@ def setParserOptions(parser):
         "openpiton::sparc_mul"          : "OpenSPARC T1 Multiplier Unit (MLU)",
         "openpiton::sparc_srams"        : "OpenSPARC T1 SRAMS (L1)",
         "openpiton::sparc_tlu"          : "OpenSPARC T1 Trap Logic Unit (TLU)",
+        "openpiton::system"             : "OpenPiton System",
         "openpiton::tile"               : "OpenPiton Tile"
     }
     fusesoc_core_help_str = \
@@ -312,6 +313,7 @@ fusesoc2toplevel = {
     "openpiton::sparc_lsu"          : "lsu",
     "openpiton::sparc_mul"          : "sparc_mul_top_nospu_wrap",
     "openpiton::sparc_tlu"          : "tlu_nospu_wrap",
+    "openpiton::system"             : "system",
     "openpiton::tile"               : "tile"
 }
 

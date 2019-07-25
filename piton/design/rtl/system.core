@@ -38,7 +38,7 @@ targets:
     pickle:
         default_tool: icarus
         filesets: [rtl]
-        toplevel: [chip]
+        toplevel: [system]
         tools:
             icarus:
                 iverilog_options: [-g 2001 -E]
