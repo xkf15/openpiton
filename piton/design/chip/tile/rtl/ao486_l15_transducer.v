@@ -121,7 +121,7 @@ always @(*) begin
     end
     BUSY: begin
       
-      if (((req_type_reg == READ) & (double_access_counter == 2'b10) & l15_transducer_val & (double_access | double_access_ifill)) | ((req_type_reg == READ) & l15_transducer_val & ~(double_access | double_access_ifill)) | (l15_transducer_val & (req_type_reg == WRITE) & ~double_transfer_reg & (write_buf_count_arbit == (write_submit_count_arbit + 1'b1)))) begin
+      if (((req_type_reg == READ) & (double_access_counter == 2'b10) & transaction_finish & (double_access | double_access_ifill)) | ((req_type_reg == READ) & transaction_finish & ~(double_access | double_access_ifill)) | (transaction_finish & (req_type_reg == WRITE) & ~double_transfer_reg & (write_buf_count_arbit == (write_submit_count_arbit + 1'b1)))) begin
         if (ao486_transducer_mem_read | ao486_transducer_mem_write) begin
           state_next = NEW;
           req_type_next = ao486_transducer_mem_write ? WRITE : ao486_transducer_mem_read ? READ : IDLE;
@@ -355,14 +355,14 @@ if(ao486_l15_write) begin
         write_submit_count_arbit <= 3'b000;
         write_reg_count <= 2'b00;
     end
-    else if(l15_transducer_val & ~double_transfer_reg) begin
+    else if(transaction_finish_return_write & ~double_transfer_reg) begin
         write_submit_count_arbit <= write_submit_count_arbit + 1'b1;
         write_reg_count <= 2'b00;
     end
-    else if(l15_transducer_val & double_transfer_reg) begin
+    else if(transaction_finish_return_write & double_transfer_reg) begin
         write_reg_count <= write_reg_count + 1'b1;
     end
-    else if(l15_transducer_val & double_transfer_reg & (write_reg_count == 2'b10)) begin
+    else if(transaction_finish_return_write & double_transfer_reg & (write_reg_count == 2'b10)) begin
         write_reg_count <= 2'b00;
         write_submit_count_arbit <= write_submit_count_arbit + 1'b1;
     end
@@ -396,7 +396,7 @@ always @(*) begin
     end
 end
 always @(posedge clk) begin
-    if(l15_transducer_val & (write_buf_count_arbit == (write_submit_count_arbit + 1'b1)) & ~double_transfer_reg) begin
+    if(transaction_finish_return_write & (write_buf_count_arbit == (write_submit_count_arbit + 1'b1)) & ~double_transfer_reg) begin
         transducer_l15_val_reg_write <= 1'b0;
         write_buf_count_arbit <= 3'b000;
         write_buf_complete_waitrequest <= 1'b0;
@@ -404,7 +404,7 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    if(l15_transducer_val & (write_reg_count == 2'b01))
+    if(transaction_finish_return_write & (write_reg_count == 2'b01))
         double_transfer_reg = 1'b0;
 end
 
@@ -413,7 +413,7 @@ always @(posedge clk) begin
         transducer_l15_address_reg_write_buf <= transducer_l15_address_first_access;
         transducer_l15_val_reg_write <= 1'b1;
     end
-    else if(l15_transducer_val & ao486_l15_write & ~double_transfer_reg)
+    else if(transaction_finish_return_write & ao486_l15_write & ~double_transfer_reg)
         transducer_l15_address_reg_write_buf <= transducer_l15_address_reg_write_buf + 3'd4;
 end
 
@@ -516,7 +516,12 @@ assign address_offset_byteenable = ao486_transducer_mem_byteenable[0] ? 2'b00 : 
 
 assign transducer_l15_data = {transducer_l15_data_reg_write, transducer_l15_data_reg_write};
 assign transducer_l15_nc = addr_reg[29];
-
+wire transaction_finish;
+assign transaction_finish = transaction_finish_return_read | transaction_finish_return_write | transaction_finish_return_ifill;
+wire transaction_finish_return_read, transaction_finish_return_write, transaction_finish_return_ifill;
+assign transaction_finish_return_read = l15_transducer_val & (l15_transducer_returntype == `LOAD_RET);
+assign transaction_finish_return_write = l15_transducer_val & (l15_transducer_returntype == `ST_ACK);
+assign transaction_finish_return_ifill = l15_transducer_val & (l15_transducer_returntype == `IFILL_RET);
 // unused wires tie to zero
 assign transducer_l15_threadid = 1'b0;
 assign transducer_l15_prefetch = 1'b0;
@@ -554,7 +559,7 @@ reg transducer_ao486_mem_waitrequest_reg;
 always @(*) begin
     if(request_new & (req_type_reg == READ))
         transducer_ao486_mem_waitrequest_reg = 1'b1;
-    else if(l15_transducer_val & (read_count_reg == 2'b00) & ~double_access & ~double_access_ifill)
+    else if((transaction_finish_return_read | transaction_finish_return_ifill) & (read_count_reg == 2'b00) & ~double_access & ~double_access_ifill)
         transducer_ao486_mem_waitrequest_reg = 1'b0;
     else if(double_access_reg & ~double_access)
         transducer_ao486_mem_waitrequest_reg = 1'b0;
@@ -577,16 +582,20 @@ reg double_access;
 reg [1:0] double_access_counter;
 reg double_access_ifill;
 wire [1:0] ao486_burstcount;
+reg [1:0] addr_read_count;
 assign ao486_burstcount = (ao486_transducer_mem_burstcount - 1'b1);
 always @(posedge clk) begin
     if (~rst_n) begin
         read_count_reg <= 2'b00;
+        addr_read_count <= 2'b00;
     end
     else if (request_new | new_request) begin
         read_count_reg <= (ao486_transducer_mem_burstcount - 1'b1);
+        addr_read_count <= transducer_l15_address_first_access[3:2];
     end
     else if (l15_transducer_val & ((l15_transducer_returntype == `LOAD_RET) | (l15_transducer_returntype == `IFILL_RET)) & ~transducer_l15_req_ack) begin
         read_count_reg <= read_count_reg - 1'b1;
+        addr_read_count <= addr_read_count + 1'b1;
     end
 end
 
@@ -616,7 +625,7 @@ reg transducer_l15_req_ack_reg;
 
 always@(posedge clk) begin
     ao486_transducer_mem_read_reg <= ao486_transducer_mem_read;
-    if(transducer_l15_req_ack) 
+    if(l15_transducer_val & ((((l15_transducer_returntype == `LOAD_RET) | (l15_transducer_returntype == `IFILL_RET)) & (read_count_reg == 2'b00)))) 
         double_access_counter <= double_access_counter - 1'b1;
     else if(request_new & (req_type_reg == READ)) begin
         double_access_counter <= 2'b11;
@@ -651,7 +660,7 @@ wire [2:0] word_select;
 assign word_select = {1'b0, (~read_count_reg)} + {1'b0, transducer_l15_address_first_access[3:2]};
 // assign word_select_ifill = {1'b0, (~read_count_reg)} + {1'b0, transducer_l15_address_first_access[4:2]};
 always @(*) begin
-    if(double_access & l15_transducer_val & ~readcode_do_ifill_reg) begin
+    if(double_access & (transaction_finish_return_read | transaction_finish_return_ifill) & ~readcode_do_ifill_reg) begin
         case(word_select)
             3'b000: begin
                 rdata_part = l15_transducer_data_0_buffer_double_access[63:32];
@@ -676,32 +685,23 @@ always @(*) begin
             end
         endcase 
     end
-    else if(~double_access & l15_transducer_val & ~readcode_do_ifill_reg) begin
-        case(word_select)
-            3'b000: begin
+    else if(~double_access & transaction_finish_return_read & ~readcode_do_ifill_reg) begin
+        case(addr_read_count)
+            2'b00: begin
                 rdata_part = l15_transducer_data_0_buffer_double_access[63:32];
             end
-            3'b001: begin
+            2'b01: begin
                 rdata_part = l15_transducer_data_0_buffer_double_access[31:0];
             end
-            3'b010: begin
+            2'b10: begin
                 rdata_part = l15_transducer_data_1_buffer_double_access[63:32];
             end
-            3'b011: begin
-                rdata_part = l15_transducer_data_1_buffer_double_access[31:0];
-            end
-            3'b100: begin
-                rdata_part = l15_transducer_data_1_buffer_double_access[31:0];
-            end
-            3'b101: begin
-                rdata_part = l15_transducer_data_1_buffer_double_access[63:32];
-            end
-            3'b110: begin
+            2'b11: begin
                 rdata_part = l15_transducer_data_1_buffer_double_access[31:0];
             end
         endcase 
     end
-    else if(~double_access & l15_transducer_val & readcode_do_ifill_reg) begin
+    else if(~double_access & transaction_finish_return_ifill & readcode_do_ifill_reg) begin
     case(transducer_l15_address_first_access[4])
         1'b0: begin
             case(word_select)
