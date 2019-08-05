@@ -489,8 +489,9 @@ always @(*) begin
 end
 
 assign transducer_l15_val = (req_type_reg == 2'b10) ? transducer_l15_val_reg : (req_type_reg == 2'b11) ? transducer_l15_val_reg_write : transducer_l15_val_reg;
-
-assign transducer_l15_address = (req_type_reg == 2'b10) ? transducer_l15_address_reg : (req_type_reg == 2'b11) ? transducer_l15_address_reg_write : transducer_l15_address_reg;
+wire [31:0] transducer_l15_address_nosign;
+assign transducer_l15_address_nosign = (req_type_reg == 2'b10) ? transducer_l15_address_reg : (req_type_reg == 2'b11) ? transducer_l15_address_reg_write : transducer_l15_address_reg;
+assign transducer_l15_address = {{8{transducer_l15_address_nosign[31]}} ,transducer_l15_address_nosign};
 
 reg readcode_do_ifill_reg;
 
@@ -515,7 +516,7 @@ wire [1:0] address_offset_byteenable;
 assign address_offset_byteenable = ao486_transducer_mem_byteenable[0] ? 2'b00 : ao486_transducer_mem_byteenable[1] ? 2'b01 : ao486_transducer_mem_byteenable[2] ? 2'b10 : ao486_transducer_mem_byteenable[3] ? 2'b11 : 2'b00;
 
 assign transducer_l15_data = {transducer_l15_data_reg_write, transducer_l15_data_reg_write};
-assign transducer_l15_nc = addr_reg[29];
+assign transducer_l15_nc = transducer_l15_address[39];
 wire transaction_finish;
 assign transaction_finish = transaction_finish_return_read | transaction_finish_return_write | transaction_finish_return_ifill;
 wire transaction_finish_return_read, transaction_finish_return_write, transaction_finish_return_ifill;
@@ -638,9 +639,9 @@ wire [31:0] transducer_l15_address_ifill;
 wire [31:0] transducer_l15_address_ifill_second_access;
 reg [31:0] transducer_l15_address_reg;
 
-assign transducer_l15_address_second_access = {{8{1'b0}}, addr_reg [29:2] + 4'h1, 4'h0};
-assign transducer_l15_address_first_access = {{8{1'b0}}, addr_reg, 2'b0};
-assign transducer_l15_address_ifill = {{8{1'b0}}, addr_reg[29:3], 5'b0};
+assign transducer_l15_address_second_access = {addr_reg [29:2] + 4'h1, 4'h0};
+assign transducer_l15_address_first_access = {addr_reg, 2'b0};
+assign transducer_l15_address_ifill = {addr_reg[29:3], 5'b0};
 assign transducer_l15_address_ifill_second_access = transducer_l15_address_second_access;
 
 always@(*) begin
