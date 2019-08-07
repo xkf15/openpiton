@@ -63,7 +63,10 @@ input                                 diag_done,
 input                                 ok_iob
 `endif
 );
-
+initial begin
+$dumpfile("test.vcd");
+$dumpvars;
+end
 //////////////////////
 // Type Declarations
 //////////////////////
