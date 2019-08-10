@@ -29,16 +29,62 @@ module ao486_l15_transducer (
     input                           rst_n,
 
     // Avalon memory bus
-    input [29:0]                    ao486_transducer_mem_address,
-    input [31:0]                    ao486_transducer_mem_writedata,
-    input [ 3:0]                    ao486_transducer_mem_byteenable,
-    input [ 2:0]                    ao486_transducer_mem_burstcount,
-    input                           ao486_transducer_mem_write,
-    input                           ao486_transducer_mem_read,
+    //input [29:0]                    ao486_transducer_mem_address,
+    //input [31:0]                    ao486_transducer_mem_writedata,
+    //input [ 3:0]                    ao486_transducer_mem_byteenable,
+    //input [ 2:0]                    ao486_transducer_mem_burstcount,
+    //input                           ao486_transducer_mem_write,
+    //input                           ao486_transducer_mem_read,
 
-    output                          transducer_ao486_mem_waitrequest,
-    output                          transducer_ao486_mem_readdatavalid,
-    output [31:0]                   transducer_ao486_mem_readdata,
+    //output                          transducer_ao486_mem_waitrequest,
+    //output                          transducer_ao486_mem_readdatavalid,
+    //output [31:0]                   transducer_ao486_mem_readdata,
+    //RESP:
+    input               writeburst_do,
+    output              writeburst_done,
+    
+    input       [31:0]  writeburst_address,
+    input       [1:0]   writeburst_dword_length,
+    input       [3:0]   writeburst_byteenable_0,
+    input       [3:0]   writeburst_byteenable_1,
+    input       [55:0]  writeburst_data,
+    //END
+    
+    //RESP:
+    input               writeline_do,
+    output              writeline_done,
+    
+    input       [31:0]  writeline_address,
+    input       [127:0] writeline_line,
+    //END
+    
+    //RESP:
+    input               readburst_do,
+    output              readburst_done,
+    
+    input       [31:0]  readburst_address,
+    input       [1:0]   readburst_dword_length,
+    input       [3:0]   readburst_byte_length,
+    output      [95:0]  readburst_data,
+    //END
+    
+    //RESP:
+    input               readline_do,
+    output              readline_done,
+    
+    input       [31:0]  readline_address,
+    output      [127:0] readline_line,
+    //END
+    
+    //RESP:
+    input               readcode_do,
+    output              readcode_done,
+    
+    input       [31:0]  readcode_address,
+    output      [127:0] readcode_line,
+    output      [31:0]  readcode_partial,
+    output              readcode_partial_done,
+    //END
     
     // Avalon io bus
     input [15:0]                    ao486_transducer_io_address,
@@ -82,17 +128,37 @@ module ao486_l15_transducer (
     
     input [63:0]                    l15_transducer_data_0,
     input [63:0]                    l15_transducer_data_1,
+    input [63:0]                    l15_transducer_data_2,
+    input [63:0]                    l15_transducer_data_3,
    
     output                          transducer_l15_req_ack,
     output                          ao486_int
 );
 
-wire [31:0] ao486_mem_wdata_flipped;
+wire any_req;
 
-assign ao486_mem_wdata_flipped = {  ao486_transducer_mem_writedata[7:0],
-                                    ao486_transducer_mem_writedata[15:8],
-                                    ao486_transducer_mem_writedata[23:16],
-                                    ao486_transducer_mem_writedata[31:24]};
+assign any_req = writeburst_do | writeline_do | readburst_do | readline_do | readcode_do;
+
+wire [64:0] ao486_mem_wdata_0_flipped;
+wire [64:0] ao486_mem_wdata_1_flipped;
+
+assign ao486_mem_wdata_0_flipped = {  writeline_line[7:0],
+                                      writeline_line[15:8],
+                                      writeline_line[23:16],
+                                      writeline_line[31:24],
+                                      writeline_line[39:32],
+                                      writeline_line[47:40],
+                                      writeline_line[55:48],
+                                      writeline_line[63:56]};
+
+assign ao486_mem_wdata_1_flipped = {  writeline_line[71:64],
+                                      writeline_line[79:72],
+                                      writeline_line[87:80],
+                                      writeline_line[95:88],
+                                      writeline_line[103:96],
+                                      writeline_line[111:104],
+                                      writeline_line[119:112],
+                                      writeline_line[127:120]};
 
 localparam ACK_IDLE = 1'b0;
 localparam ACK_WAIT = 1'b1;
@@ -108,7 +174,7 @@ begin
        prev_val <= 1'b0;
     end
     else begin
-       current_val <= ao486_transducer_mem_write | ao486_transducer_mem_read;
+       current_val <= any_req;
        prev_val <= current_val;
     end
 end 
@@ -139,36 +205,38 @@ always @ (*) begin
 end
 
 reg [1:0] req_size;
+reg [31:0] req_addr;
 always @* begin
-    case (ao486_transducer_mem_byteenable)
-    4'b0001, 4'b0010, 4'b0100, 4'b1000: begin
-        req_size = `PCX_SZ_1B;
+    req_size = `PCX_SZ_1B;
+    req_addr = 32'b0;
+    if (writeline_do) begin
+        req_size = `PCX_SZ_16B;
+        req_addr = writeline_address;
     end
-    4'b0011, 4'b0110, 4'b1100: begin
-        req_size = `PCX_SZ_1B;
+    else if (readline_do) begin
+        req_size = `PCX_SZ_16B;
+        req_addr = readline_address;
     end
-    4'b0111, 4'b1110: begin
-        req_size = `PCX_SZ_4B;
+    else if (readcode_do) begin
+        req_size = `PCX_SZ_16B;
+        req_addr = readcode_address;
     end
-    4'b1111: begin
-        req_size = `PCX_SZ_4B;
-    end
-    endcase
 end
 
-assign transducer_l15_val = (ack_reg == ACK_WAIT) ? ao486_transducer_mem_write | ao486_transducer_mem_read
+assign transducer_l15_val = (ack_reg == ACK_WAIT) ? any_req
                          : (ack_reg == ACK_IDLE) ? new_request
-                         : ao486_transducer_mem_write | ao486_transducer_mem_read;
+                         : any_req;
 //--- ao486 -> L1.5
-assign transducer_l15_rqtype =  ao486_transducer_mem_write ? `STORE_RQ :
-                                ao486_transducer_mem_read  ? `LOAD_RQ : 
+assign transducer_l15_rqtype =  writeburst_do | writeline_do ? `STORE_RQ :
+                                readburst_do | readline_do   ? `LOAD_RQ : 
+                                readcode_do ? `IMISS_RQ :
                                 5'b0;
 assign transducer_l15_amo_op = `L15_AMO_OP_NONE;
 assign transducer_l15_size = req_size;
 //assign transducer_l15_address = {{8{ao486_transducer_mem_address[29]}}, ao486_transducer_mem_address, 2'b0};
-assign transducer_l15_address = {{8{1'b0}}, ao486_transducer_mem_address, 2'b0};
-assign transducer_l15_data = {ao486_mem_wdata_flipped, ao486_mem_wdata_flipped};
-assign transducer_l15_nc = ao486_transducer_mem_address[29];
+assign transducer_l15_address = {{8{req_addr[31]}}, req_addr[31:4], 4'b0};
+assign transducer_l15_data = ao486_mem_wdata_0_flipped;
+assign transducer_l15_nc = req_addr[31];
 
 // unused wires tie to zero
 assign transducer_l15_threadid = 1'b0;
@@ -181,7 +249,7 @@ assign transducer_l15_data_next_entry = 64'b0;
 assign transducer_l15_csm_data = 33'b0;
 
 //--- L1.5 -> ao486
-reg transducer_ao486_mem_readdatavalid_reg;
+//reg transducer_ao486_mem_readdatavalid_reg;
 reg [31:0] rdata_part;
 reg [1:0] read_count_reg;
 
@@ -201,52 +269,64 @@ always @ (posedge clk) begin
     end
 end
        
-assign transducer_ao486_mem_waitrequest = (ao486_transducer_mem_read | ao486_transducer_mem_write) & ~l15_transducer_ack;
+//assign transducer_ao486_mem_waitrequest = (ao486_transducer_mem_read | ao486_transducer_mem_write) & ~l15_transducer_ack;
 
-assign transducer_ao486_mem_readdatavalid = transducer_ao486_mem_readdatavalid_reg;
-assign transducer_ao486_mem_readdata = {rdata_part[7:0],
-                                        rdata_part[15:8],
-                                        rdata_part[23:16],
-                                        rdata_part[31:24]};
-assign transducer_l15_req_ack = l15_transducer_val & (((l15_transducer_returntype == `LOAD_RET) & (read_count_reg == 2'b00)) | (l15_transducer_returntype != `LOAD_RET));
+//assign transducer_ao486_mem_readdatavalid = transducer_ao486_mem_readdatavalid_reg;
+//assign transducer_ao486_mem_readdata = {rdata_part[7:0],
+//                                        rdata_part[15:8],
+//                                        rdata_part[23:16],
+//                                        rdata_part[31:24]};
+assign transducer_l15_req_ack = l15_transducer_val;
 
-always @(posedge clk) begin
-    if (~rst_n) begin
-        read_count_reg <= 2'b00;
-    end
-    else if (ao486_transducer_mem_read) begin
-        read_count_reg <= (ao486_transducer_mem_burstcount - 1'b1);
-    end
-    else if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET) & ~transducer_l15_req_ack) begin
-        read_count_reg <= read_count_reg - 1'b1;
-    end
-end
+//always @(posedge clk) begin
+//    if (~rst_n) begin
+//        read_count_reg <= 2'b00;
+//    end
+//    else if (ao486_transducer_mem_read) begin
+//        read_count_reg <= (ao486_transducer_mem_burstcount - 1'b1);
+//    end
+//    else if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET) & ~transducer_l15_req_ack) begin
+//        read_count_reg <= read_count_reg - 1'b1;
+//    end
+//end
 
-always @* begin
-    case((~read_count_reg) + transducer_l15_address[3:2])
-    2'b00: begin
-       rdata_part = l15_transducer_data_0[63:32];
-    end
-    2'b01: begin
-       rdata_part = l15_transducer_data_0[31:0];
-    end
-    2'b10: begin
-       rdata_part = l15_transducer_data_1[63:32];
-    end
-    2'b11: begin
-       rdata_part = l15_transducer_data_1[31:0];
-    end
-    endcase 
-end
+assign writeburst_done = 1'b0;
 
-always @* begin
-    if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET)) begin
-        transducer_ao486_mem_readdatavalid_reg = 1'b1;
-    end
-    else begin
-        transducer_ao486_mem_readdatavalid_reg = 1'b0;
-    end
-end
+assign writeline_done = l15_transducer_val & (l15_transducer_returntype == `ST_ACK);
+
+assign readburst_done = 1'b0;
+
+assign readline_line = {l15_transducer_data_1, l15_transducer_data_0};
+assign readline_done = l15_transducer_val & (l15_transducer_returntype == `LOAD_RET);
+
+assign readcode_line = req_addr[4] ? {l15_transducer_data_3, l15_transducer_data_2} : {l15_transducer_data_1, l15_transducer_data_0};
+assign readcode_done = l15_transducer_val & (l15_transducer_returntype == `IFILL_RET);
+
+//always @* begin
+//    case((~read_count_reg) + transducer_l15_address[3:2])
+//    2'b00: begin
+//       rdata_part = l15_transducer_data_0[63:32];
+//    end
+//    2'b01: begin
+//       rdata_part = l15_transducer_data_0[31:0];
+//    end
+//    2'b10: begin
+//       rdata_part = l15_transducer_data_1[63:32];
+//    end
+//    2'b11: begin
+//       rdata_part = l15_transducer_data_1[31:0];
+//    end
+//    endcase 
+//end
+
+//always @* begin
+//    if (l15_transducer_val & (l15_transducer_returntype == `LOAD_RET)) begin
+//        transducer_ao486_mem_readdatavalid_reg = 1'b1;
+//    end
+//    else begin
+//        transducer_ao486_mem_readdatavalid_reg = 1'b0;
+//    end
+//end
 
 always @ * begin
    if (l15_transducer_val) begin

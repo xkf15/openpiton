@@ -1061,16 +1061,63 @@ endgenerate
 generate
 if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
 `ifdef PITON_AO486
-    wire [29:0]                    ao486_transducer_mem_address;
-    wire [31:0]                    ao486_transducer_mem_writedata;
-    wire [ 3:0]                    ao486_transducer_mem_byteenable;
-    wire [ 2:0]                    ao486_transducer_mem_burstcount;
-    wire                           ao486_transducer_mem_write;
-    wire                           ao486_transducer_mem_read;
+    //RESP:
+    wire              writeburst_do;
+    wire              writeburst_done;
 
-    wire                           transducer_ao486_mem_waitrequest;
-    wire                           transducer_ao486_mem_readdatavalid;
-    wire [31:0]                    transducer_ao486_mem_readdata;
+    wire      [31:0]  writeburst_address;
+    wire      [1:0]   writeburst_dword_length;
+    wire      [3:0]   writeburst_byteenable_0;
+    wire      [3:0]   writeburst_byteenable_1;
+    wire      [55:0]  writeburst_data;
+    //END
+    
+    //RESP:
+    wire              writeline_do;
+    wire              writeline_done;
+
+    wire      [31:0]  writeline_address;
+    wire      [127:0] writeline_line;
+    //END
+    
+    //RESP:
+    wire              readburst_do;
+    wire              readburst_done;
+
+    wire      [31:0]  readburst_address;
+    wire      [1:0]   readburst_dword_length;
+    wire      [3:0]   readburst_byte_length;
+    wire     [95:0]   readburst_data;
+    //END
+    
+    //RESP:
+    wire              readline_do;
+    wire              readline_done;
+
+    wire       [31:0] readline_address;
+    wire     [127:0]  readline_line;
+    //END
+    
+    //RESP:
+    wire              readcode_do;
+    wire              readcode_done;
+
+    wire      [31:0]  readcode_address;
+    wire     [127:0]  readcode_line;
+    wire     [31:0]   readcode_partial;
+    wire              readcode_partial_done;
+    //END
+
+    //wire [29:0]                    ao486_transducer_mem_address;
+    //wire [31:0]                    ao486_transducer_mem_writedata;
+    //wire [ 3:0]                    ao486_transducer_mem_byteenable;
+    //wire [ 2:0]                    ao486_transducer_mem_burstcount;
+    //wire                           ao486_transducer_mem_write;
+    //wire                           ao486_transducer_mem_read;
+
+    //wire                           transducer_ao486_mem_waitrequest;
+    //wire                           transducer_ao486_mem_readdatavalid;
+    //wire [31:0]                    transducer_ao486_mem_readdata;
 
     wire [15:0]                    ao486_transducer_io_address;
     wire [ 3:0]                    ao486_transducer_io_byteenable;
@@ -1116,16 +1163,62 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
         .interrupt_done             (),
 
         // Avalon memory bus
-        .avm_address                (ao486_transducer_mem_address),
-        .avm_writedata              (ao486_transducer_mem_writedata),
-        .avm_byteenable             (ao486_transducer_mem_byteenable),
-        .avm_burstcount             (ao486_transducer_mem_burstcount),
-        .avm_write                  (ao486_transducer_mem_write),
-        .avm_read                   (ao486_transducer_mem_read),
+        //.avm_address                (ao486_transducer_mem_address),
+        //.avm_writedata              (ao486_transducer_mem_writedata),
+        //.avm_byteenable             (ao486_transducer_mem_byteenable),
+        //.avm_burstcount             (ao486_transducer_mem_burstcount),
+        //.avm_write                  (ao486_transducer_mem_write),
+        //.avm_read                   (ao486_transducer_mem_read),
 
-        .avm_waitrequest            (transducer_ao486_mem_waitrequest),
-        .avm_readdatavalid          (transducer_ao486_mem_readdatavalid),
-        .avm_readdata               (transducer_ao486_mem_readdata),
+        //.avm_waitrequest            (transducer_ao486_mem_waitrequest),
+        //.avm_readdatavalid          (transducer_ao486_mem_readdatavalid),
+        //.avm_readdata               (transducer_ao486_mem_readdata),
+        //RESP:
+        .writeburst_do              (writeburst_do),           //input
+        .writeburst_done            (writeburst_done),         //output
+        
+        .writeburst_address         (writeburst_address),      //input [31:0]
+        .writeburst_dword_length    (writeburst_dword_length), //input [1:0]
+        .writeburst_byteenable_0    (writeburst_byteenable_0), //input [3:0]
+        .writeburst_byteenable_1    (writeburst_byteenable_1), //input [3:0]
+        .writeburst_data            (writeburst_data),         //input [55:0]
+        //END
+        
+        //RESP:
+        .writeline_do               (writeline_do),            //input
+        .writeline_done             (writeline_done),          //output
+        
+        .writeline_address          (writeline_address),       //input [31:0]
+        .writeline_line             (writeline_line),          //input [127:0]
+        //END
+        
+        //RESP:
+        .readburst_do               (readburst_do),            //input
+        .readburst_done             (readburst_done),          //output
+        
+        .readburst_address          (readburst_address),       //input  [31:0]
+        .readburst_dword_length     (readburst_dword_length),  //input  [1:0]
+        .readburst_byte_length      (readburst_byte_length),   //input [3:0]
+        .readburst_data             (readburst_data),          //output [95:0]
+        //END
+        
+        //RESP:
+        .readline_do                (readline_do),             //input
+        .readline_done              (readline_done),           //output
+        
+        .readline_address           (readline_address),        //input [31:0]
+        .readline_line              (readline_line),           //output [127:0]
+        //END
+        
+        //RESP:
+        .readcode_do                (readcode_do),             //input
+        .readcode_done              (readcode_done),           //output
+
+        .readcode_address           (readcode_address),        //input [31:0]
+        .readcode_line              (readcode_line),           //output [127:0]
+        .readcode_partial           (readcode_partial),        //output [31:0]
+        .readcode_partial_done      (readcode_partial_done),   //output
+        //END
 
         // Avalon io bus
         .avalon_io_address          (ao486_transducer_io_address),
@@ -1147,17 +1240,63 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
         .clk                                (clk),
         .rst_n                              (rst_n),
 
-        // Avalon memory bus
-        .ao486_transducer_mem_address       (ao486_transducer_mem_address),
-        .ao486_transducer_mem_writedata     (ao486_transducer_mem_writedata),
-        .ao486_transducer_mem_byteenable    (ao486_transducer_mem_byteenable),
-        .ao486_transducer_mem_burstcount    (ao486_transducer_mem_burstcount),
-        .ao486_transducer_mem_write         (ao486_transducer_mem_write),
-        .ao486_transducer_mem_read          (ao486_transducer_mem_read),
+        //// Avalon memory bus
+        //.ao486_transducer_mem_address       (ao486_transducer_mem_address),
+        //.ao486_transducer_mem_writedata     (ao486_transducer_mem_writedata),
+        //.ao486_transducer_mem_byteenable    (ao486_transducer_mem_byteenable),
+        //.ao486_transducer_mem_burstcount    (ao486_transducer_mem_burstcount),
+        //.ao486_transducer_mem_write         (ao486_transducer_mem_write),
+        //.ao486_transducer_mem_read          (ao486_transducer_mem_read),
 
-        .transducer_ao486_mem_waitrequest   (transducer_ao486_mem_waitrequest),
-        .transducer_ao486_mem_readdatavalid (transducer_ao486_mem_readdatavalid),
-        .transducer_ao486_mem_readdata      (transducer_ao486_mem_readdata),
+        //.transducer_ao486_mem_waitrequest   (transducer_ao486_mem_waitrequest),
+        //.transducer_ao486_mem_readdatavalid (transducer_ao486_mem_readdatavalid),
+        //.transducer_ao486_mem_readdata      (transducer_ao486_mem_readdata),
+        //RESP:
+        .writeburst_do              (writeburst_do),           //input
+        .writeburst_done            (writeburst_done),         //output
+        
+        .writeburst_address         (writeburst_address),      //input [31:0]
+        .writeburst_dword_length    (writeburst_dword_length), //input [1:0]
+        .writeburst_byteenable_0    (writeburst_byteenable_0), //input [3:0]
+        .writeburst_byteenable_1    (writeburst_byteenable_1), //input [3:0]
+        .writeburst_data            (writeburst_data),         //input [55:0]
+        //END
+        
+        //RESP:
+        .writeline_do               (writeline_do),            //input
+        .writeline_done             (writeline_done),          //output
+        
+        .writeline_address          (writeline_address),       //input [31:0]
+        .writeline_line             (writeline_line),          //input [127:0]
+        //END
+        
+        //RESP:
+        .readburst_do               (readburst_do),            //input
+        .readburst_done             (readburst_done),          //output
+        
+        .readburst_address          (readburst_address),       //input  [31:0]
+        .readburst_dword_length     (readburst_dword_length),  //input  [1:0]
+        .readburst_byte_length      (readburst_byte_length),   //input [3:0]
+        .readburst_data             (readburst_data),          //output [95:0]
+        //END
+        
+        //RESP:
+        .readline_do                (readline_do),             //input
+        .readline_done              (readline_done),           //output
+        
+        .readline_address           (readline_address),        //input [31:0]
+        .readline_line              (readline_line),           //output [127:0]
+        //END
+        
+        //RESP:
+        .readcode_do                (readcode_do),             //input
+        .readcode_done              (readcode_done),           //output
+
+        .readcode_address           (readcode_address),        //input [31:0]
+        .readcode_line              (readcode_line),           //output [127:0]
+        .readcode_partial           (readcode_partial),        //output [31:0]
+        .readcode_partial_done      (readcode_partial_done),   //output
+        //END
 
         // Avalon io bus
         .ao486_transducer_io_address        (ao486_transducer_io_address),
@@ -1198,6 +1337,8 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
 
         .l15_transducer_data_0              (l15_transducer_data_0),
         .l15_transducer_data_1              (l15_transducer_data_1),
+        .l15_transducer_data_2              (l15_transducer_data_2),
+        .l15_transducer_data_3              (l15_transducer_data_3),
 
 
         .transducer_l15_req_ack             (transducer_l15_req_ack),
