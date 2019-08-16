@@ -1084,9 +1084,11 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
 
     wire                           transducer_ao486_io_waitrequest;
     wire [1:0]                     state_transducer;
-    wire        ao486_int;
-    wire [31:0] eip;
-
+    wire                           ao486_int;
+    wire [31:0]                    eip;
+    wire [7:0]                     interrupt_vector;
+    wire                           interrupt_do;
+    wire                           interrupt_done;
     pico_reset pico_reset(
         .gclk(clk_gated),
         .rst_n(rst_n_f),
@@ -1111,9 +1113,9 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
         .a20_enable                 (1'b1),
 
         // Interrupts
-        .interrupt_do               (1'b0),
-        .interrupt_vector           (8'b0),
-        .interrupt_done             (),
+        .interrupt_do               (interrupt_do),
+        .interrupt_vector           (interrupt_vector),
+        .interrupt_done             (interrupt_done),
 
         // Avalon memory bus
         .avm_address                (ao486_transducer_mem_address),
@@ -1205,6 +1207,22 @@ if (TILE_TYPE == `AO486_TILE) begin : g_ao486_core
 
         .transducer_l15_req_ack             (transducer_l15_req_ack),
         .ao486_int                          (ao486_int)
+    );
+
+    ao486_io_transducer ao486_io_transducer(
+        .clk                               (clk),
+        .rst_n                             (rst_n),
+        .ao486_transducer_io_address       (ao486_transducer_io_address),
+        .ao486_transducer_io_byteenable    (ao486_transducer_io_byteenable),
+        .ao486_transducer_io_read          (ao486_transducer_io_read),
+        .transducer_ao486_io_readdatavalid (transducer_ao486_io_readdatavalid),
+        .transducer_ao486_io_readdata      (transducer_ao486_io_readdata),
+        .ao486_transducer_io_write         (ao486_transducer_io_write),
+        .ao486_transducer_io_writedata     (ao486_transducer_io_writedata),
+        .transducer_ao486_io_waitrequest   (transducer_ao486_io_waitrequest),
+        .interrupt_do                      (interrupt_do),
+        .interrupt_vector                  (interrupt_vector), 
+        .interrupt_done                    (interrupt_done)
     );
 `endif // PITON_AO486
 end
