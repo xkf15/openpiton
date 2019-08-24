@@ -1484,7 +1484,7 @@ ASM_END
 int uart_can_tx_byte(base_port)
     Bit16u base_port;
 {
-    return inb(base_port + UART_LSR) & 0x20;
+    return 0;
 }
 
 void uart_wait_to_tx_byte(base_port)
@@ -5336,61 +5336,61 @@ enqueue_key(scan_code, ascii_code)
   return(1);
 }
 
-  void
-int74_function(make_farcall, Z, Y, X, status)
-  Bit16u make_farcall, Z, Y, X, status;
-{
-  Bit8u  in_byte, index, package_count;
-  Bit8u  mouse_flags_1, mouse_flags_2;
+//   void
+// int74_function(make_farcall, Z, Y, X, status)
+//   Bit16u make_farcall, Z, Y, X, status;
+// {
+//   Bit8u  in_byte, index, package_count;
+//   Bit8u  mouse_flags_1, mouse_flags_2;
 
-  //
-  // DS has been set to EBDA segment before call
-  //
+//   //
+//   // DS has been set to EBDA segment before call
+//   //
 
-BX_DEBUG_INT74("entering int74_function\n");
-  make_farcall = 0;
+// BX_DEBUG_INT74("entering int74_function\n");
+//   make_farcall = 0;
 
-  in_byte = inb(PORT_PS2_STATUS);
-  if ((in_byte & 0x21) != 0x21) {
-    return;
-  }
+//   in_byte = inb(PORT_PS2_STATUS);
+//   if ((in_byte & 0x21) != 0x21) {
+//     return;
+//   }
 
-  in_byte = inb(PORT_PS2_DATA);
-BX_DEBUG_INT74("int74: read byte %02x\n", in_byte);
+//   in_byte = inb(PORT_PS2_DATA);
+// BX_DEBUG_INT74("int74: read byte %02x\n", in_byte);
 
-  mouse_flags_1 = read_byte_DS(&EbdaData->mouse_flag1);
-  mouse_flags_2 = read_byte_DS(&EbdaData->mouse_flag2);
+//   mouse_flags_1 = read_byte_DS(&EbdaData->mouse_flag1);
+//   mouse_flags_2 = read_byte_DS(&EbdaData->mouse_flag2);
 
-  if ((mouse_flags_2 & 0x80) != 0x80) {
-      return;
-  }
+//   if ((mouse_flags_2 & 0x80) != 0x80) {
+//       return;
+//   }
 
-  package_count = mouse_flags_2 & 0x07;
-  index = mouse_flags_1 & 0x07;
-  write_byte_DS(&EbdaData->mouse_data[index], in_byte);
+//   package_count = mouse_flags_2 & 0x07;
+//   index = mouse_flags_1 & 0x07;
+//   write_byte_DS(&EbdaData->mouse_data[index], in_byte);
 
-  if (index >= package_count) {
-BX_DEBUG_INT74("int74_function: make_farcall=1\n");
-    if (package_count == 3) {
-      status = read_byte_DS(&EbdaData->mouse_data[0]);
-      HIBYTE(status) = read_byte_DS(&EbdaData->mouse_data[1]);
-      X      = read_byte_DS(&EbdaData->mouse_data[2]);
-      Y      = read_byte_DS(&EbdaData->mouse_data[3]);
-    } else {
-      status = read_byte_DS(&EbdaData->mouse_data[0]);
-      X      = read_byte_DS(&EbdaData->mouse_data[1]);
-      Y      = read_byte_DS(&EbdaData->mouse_data[2]);
-    }
-    Z = 0;
-    mouse_flags_1 = 0;
-    // check if far call handler installed
-    if (mouse_flags_2 & 0x80)
-      make_farcall = 1;
-  } else {
-    mouse_flags_1++;
-  }
-  write_byte_DS(&EbdaData->mouse_flag1, mouse_flags_1);
-}
+//   if (index >= package_count) {
+// BX_DEBUG_INT74("int74_function: make_farcall=1\n");
+//     if (package_count == 3) {
+//       status = read_byte_DS(&EbdaData->mouse_data[0]);
+//       HIBYTE(status) = read_byte_DS(&EbdaData->mouse_data[1]);
+//       X      = read_byte_DS(&EbdaData->mouse_data[2]);
+//       Y      = read_byte_DS(&EbdaData->mouse_data[3]);
+//     } else {
+//       status = read_byte_DS(&EbdaData->mouse_data[0]);
+//       X      = read_byte_DS(&EbdaData->mouse_data[1]);
+//       Y      = read_byte_DS(&EbdaData->mouse_data[2]);
+//     }
+//     Z = 0;
+//     mouse_flags_1 = 0;
+//     // check if far call handler installed
+//     if (mouse_flags_2 & 0x80)
+//       make_farcall = 1;
+//   } else {
+//     mouse_flags_1++;
+//   }
+//   write_byte_DS(&EbdaData->mouse_flag1, mouse_flags_1);
+// }
 
 #define SET_DISK_RET_STATUS(status) write_byte(0x0040, 0x0074, status)
 
@@ -8317,80 +8317,83 @@ Bit16u seq_nr;
   /* Translate from CMOS runes to an IPL table offset by subtracting 1 */
   bootdev -= 1;
 #else
-  if (seq_nr ==2) BX_PANIC("No more boot devices.");
-  if (!!(inb_cmos(0x2d) & 0x20) ^ (seq_nr == 1))
+//  if (seq_nr ==2) BX_PANIC("No more boot devices.");
+//  if (!!(inb_cmos(0x2d) & 0x20) ^ (seq_nr == 1))
       /* Boot from floppy if the bit is set or it's the second boot */
-    bootdev = 0x00;
-  else
+//    bootdev = 0x00;
+//  else
     bootdev = 0x01;
 #endif
 
   /* Read the boot device from the IPL table */
-  if (get_boot_vector(bootdev, &e) == 0) {
-    BX_INFO("Invalid boot device (0x%x)\n", bootdev);
-    return;
-  }
+//  if (get_boot_vector(bootdev, &e) == 0) {
+//    BX_INFO("Invalid boot device (0x%x)\n", bootdev);
+//    return;
+//  }
 
   /* Do the loading, and set up vector as a far pointer to the boot
    * address, and bootdrv as the boot drive */
-  print_boot_device(&e);
+//  print_boot_device(&e);
 
-  switch(e.type) {
-  case IPL_TYPE_FLOPPY: /* FDD */
-  case IPL_TYPE_HARDDISK: /* HDD */
+//  switch(e.type) {
+//  case IPL_TYPE_FLOPPY: /* FDD */
+//  case IPL_TYPE_HARDDISK: /* HDD */
 
-    bootdrv = (e.type == IPL_TYPE_HARDDISK) ? 0x80 : 0x00;
+//    bootdrv = (e.type == IPL_TYPE_HARDDISK) ? 0x80 : 0x00;
+    bootdrv = 0x80;
     bootseg = 0x07c0;
-    status = 0;
+//    status = 0;
 
-ASM_START
-    push bp
-    mov  bp, sp
-    push ax
-    push bx
-    push cx
-    push dx
+//ASM_START
+//    push bp
+//    mov  bp, sp
+//    push ax
+//    push bx
+//    push cx
+//    push dx
+//
+//    mov  dl, _int19_function.bootdrv + 2[bp]
+//    mov  ax, _int19_function.bootseg + 2[bp]
+//    mov  es, ax         ;; segment
+//    xor  bx, bx         ;; offset
+//    mov  ah, #0x02      ;; function 2, read diskette sector
+//    mov  al, #0x01      ;; read 1 sector
+//    mov  ch, #0x00      ;; track 0
+//    mov  cl, #0x01      ;; sector 1
+//    mov  dh, #0x00      ;; head 0
+//    int  #0x13          ;; read sector
+//    jnc  int19_load_done
+//    mov  ax, #0x0001
+//    mov  _int19_function.status + 2[bp], ax
 
-    mov  dl, _int19_function.bootdrv + 2[bp]
-    mov  ax, _int19_function.bootseg + 2[bp]
-    mov  es, ax         ;; segment
-    xor  bx, bx         ;; offset
-    mov  ah, #0x02      ;; function 2, read diskette sector
-    mov  al, #0x01      ;; read 1 sector
-    mov  ch, #0x00      ;; track 0
-    mov  cl, #0x01      ;; sector 1
-    mov  dh, #0x00      ;; head 0
-    int  #0x13          ;; read sector
-    jnc  int19_load_done
-    mov  ax, #0x0001
-    mov  _int19_function.status + 2[bp], ax
+//int19_load_done:
+//    pop  dx
+//    pop  cx
+//    pop  bx
+//    pop  ax
+//    pop  bp
+//ASM_END
 
-int19_load_done:
-    pop  dx
-    pop  cx
-    pop  bx
-    pop  ax
-    pop  bp
-ASM_END
-
-    if (status != 0) {
-      print_boot_failure(e.type, 1);
-      return;
-    }
+//    if (status != 0) {
+//      print_boot_failure(e.type, 1);
+//      return;
+//    }
 
     /* Always check the signature on a HDD boot sector; on FDD, only do
      * the check if the CMOS doesn't tell us to skip it */
-    if ((e.type != IPL_TYPE_FLOPPY) || !((inb_cmos(0x38) & 0x01))) {
-      if (read_word(bootseg,0x1fe) != 0xaa55) {
-        print_boot_failure(e.type, 0);
-        return;
-      }
-    }
+    //if ((e.type != IPL_TYPE_FLOPPY) || !((inb_cmos(0x38) & 0x01))) {
+    //  if (read_word(bootseg,0x1fe) != 0xaa55) {
+    //    print_boot_failure(e.type, 0);
+    //    return;
+    //  }
+    //}
 
     /* Canonicalize bootseg:bootip */
     bootip = (bootseg & 0x0fff) << 4;
+    //bootip = 0x08000;
     bootseg &= 0xf000;
-  break;
+    // bootseg = 0xd000; 
+//  break;
 
 #if BX_ELTORITO_BOOT
   case IPL_TYPE_CDROM: /* CD-ROM */
@@ -8409,16 +8412,16 @@ ASM_END
     break;
 #endif
 
-  case IPL_TYPE_BEV: /* Expansion ROM with a Bootstrap Entry Vector (a far pointer) */
-    bootseg = HIWORD(e.vector);
-    bootip = LOWORD(e.vector);
-    break;
+//  case IPL_TYPE_BEV: /* Expansion ROM with a Bootstrap Entry Vector (a far pointer) */
+//    bootseg = HIWORD(e.vector);
+//    bootip = LOWORD(e.vector);
+//    break;
 
-  default: return;
-  }
+//  default: return;
+//  }
 
   /* Debugging info */
-  BX_INFO("Booting from %x:%x\n", bootseg, bootip);
+//  BX_INFO("Booting from %x:%x\n", bootseg, bootip);
 
   /* Jump to the boot vector */
 ASM_START
@@ -8440,6 +8443,7 @@ ASM_START
     mov  ds, bx
     mov  es, bx
     mov  bp, bx
+    
     ;; Go!
     iret
 ASM_END
@@ -8704,37 +8708,37 @@ ASM_END
 
 
 ASM_START
-;------------------------------------------
-;- INT74h : PS/2 mouse hardware interrupt -
-;------------------------------------------
-int74_handler:
-  sti
-  pusha
-  push ds         ;; save DS
-  push #0x00
-  pop ds
-  push 0x040E     ;; push 0000:040E (opcodes 0xff, 0x36, 0x0E, 0x04)
-  pop ds
-  push #0x00 ;; placeholder for status
-  push #0x00 ;; placeholder for X
-  push #0x00 ;; placeholder for Y
-  push #0x00 ;; placeholder for Z
-  push #0x00 ;; placeholder for make_far_call boolean
-  call _int74_function
-  pop  cx      ;; remove make_far_call from stack
-  jcxz int74_done
+// ;------------------------------------------
+// ;- INT74h : PS/2 mouse hardware interrupt -
+// ;------------------------------------------
+// int74_handler:
+//   sti
+//   pusha
+//   push ds         ;; save DS
+//   push #0x00
+//   pop ds
+//   push 0x040E     ;; push 0000:040E (opcodes 0xff, 0x36, 0x0E, 0x04)
+//   pop ds
+//   push #0x00 ;; placeholder for status
+//   push #0x00 ;; placeholder for X
+//   push #0x00 ;; placeholder for Y
+//   push #0x00 ;; placeholder for Z
+//   push #0x00 ;; placeholder for make_far_call boolean
+//   call _int74_function
+//   pop  cx      ;; remove make_far_call from stack
+//   jcxz int74_done
 
-  ;; make far call to EBDA:0022
-  //CALL_EP(0x0022) ;; call far routine (call_Ep DS:0022 :opcodes 0xff, 0x1e, 0x22, 0x00)
-  call far ptr[0x22]
-int74_done:
-  cli
-  call eoi_both_pics
-  add sp, #8     ;; pop status, x, y, z
+//   ;; make far call to EBDA:0022
+//   //CALL_EP(0x0022) ;; call far routine (call_Ep DS:0022 :opcodes 0xff, 0x1e, 0x22, 0x00)
+//   call far ptr[0x22]
+// int74_done:
+//   cli
+//   call eoi_both_pics
+//   add sp, #8     ;; pop status, x, y, z
 
-  pop ds          ;; restore DS
-  popa
-  iret
+//   pop ds          ;; restore DS
+//   popa
+//   iret
 
 
 ;; This will perform an IRET, but will retain value of current CF
@@ -10740,6 +10744,7 @@ rom_scan_increment:
   ret
 
 post_init_pic:
+
   mov al, #0x11 ; send initialisation commands
   out PORT_PIC1_CMD, al
   out PORT_PIC2_CMD, al
@@ -10848,28 +10853,28 @@ post:
   xor ax, ax
 
   ;; first reset the DMA controllers
-  out PORT_DMA1_MASTER_CLEAR,al
-  out PORT_DMA2_MASTER_CLEAR,al
+  // out PORT_DMA1_MASTER_CLEAR,al
+  // out PORT_DMA2_MASTER_CLEAR,al
 
   ;; then initialize the DMA controllers
-  mov al, #0xC0
-  out PORT_DMA2_MODE_REG, al ; cascade mode of channel 4 enabled
-  mov al, #0x00
-  out PORT_DMA2_MASK_REG, al ; unmask channel 4
+  // mov al, #0xC0
+  // out PORT_DMA2_MODE_REG, al ; cascade mode of channel 4 enabled
+  // mov al, #0x00
+  // out PORT_DMA2_MASK_REG, al ; unmask channel 4
 
   ;; Examine CMOS shutdown status.
-  mov AL, #0x0f
-  out PORT_CMOS_INDEX, AL
-  in  AL, PORT_CMOS_DATA
+  // mov AL, #0x0f
+  // out PORT_CMOS_INDEX, AL
+  // mov  AL, #0x0f
 
   ;; backup status
   mov bl, al
 
   ;; Reset CMOS shutdown status.
-  mov AL, #0x0f
-  out PORT_CMOS_INDEX, AL          ; select CMOS register Fh
-  mov AL, #0x00
-  out PORT_CMOS_DATA, AL          ; set shutdown action to normal
+  // mov AL, #0x0f
+  // out PORT_CMOS_INDEX, AL          ; select CMOS register Fh
+  // mov AL, #0x00
+  // out PORT_CMOS_DATA, AL          ; set shutdown action to normal
 
   ;; Examine CMOS shutdown status.
   mov al, bl
@@ -10939,7 +10944,7 @@ normal_post:
   rep
     stosw
 
-  call _log_bios_start
+  //call _log_bios_start
 
   call post_init_ivt
 
@@ -10963,104 +10968,104 @@ normal_post:
   mov al, #0x34 ; timer0: binary count, 16bit count, mode 2
   out PORT_PIT_MODE, al
   mov al, #0x00 ; maximum count of 0000H = 18.2Hz
-  out PORT_PIT_COUNTER0, al
-  out PORT_PIT_COUNTER0, al
+  // out PORT_PIT_COUNTER0, al
+  // out PORT_PIT_COUNTER0, al
 
-  ;; Keyboard
-  SET_INT_VECTOR(0x09, #0xF000, #int09_handler)
-  SET_INT_VECTOR(0x16, #0xF000, #int16_handler)
+  // ;; Keyboard
+  // // SET_INT_VECTOR(0x09, #0xF000, #int09_handler)
+  // SET_INT_VECTOR(0x16, #0xF000, #int16_handler)
 
-  xor  ax, ax
-  mov  ds, ax
-  mov  0x0417, al /* keyboard shift flags, set 1 */
-  mov  0x0418, al /* keyboard shift flags, set 2 */
-  mov  0x0419, al /* keyboard alt-numpad work area */
-  mov  0x0471, al /* keyboard ctrl-break flag */
-  mov  0x0497, al /* keyboard status flags 4 */
-  mov  al, #0x10
-  mov  0x0496, al /* keyboard status flags 3 */
+  // xor  ax, ax
+  // mov  ds, ax
+  // mov  0x0417, al /* keyboard shift flags, set 1 */
+  // mov  0x0418, al /* keyboard shift flags, set 2 */
+  // mov  0x0419, al /* keyboard alt-numpad work area */
+  // mov  0x0471, al /* keyboard ctrl-break flag */
+  // mov  0x0497, al /* keyboard status flags 4 */
+  // mov  al, #0x10
+  // mov  0x0496, al /* keyboard status flags 3 */
 
 
-  /* keyboard head of buffer pointer */
-  mov  bx, #0x001E
-  mov  0x041A, bx
+  // /* keyboard head of buffer pointer */
+  // mov  bx, #0x001E
+  // mov  0x041A, bx
 
-  /* keyboard end of buffer pointer */
-  mov  0x041C, bx
+  // /* keyboard end of buffer pointer */
+  // mov  0x041C, bx
 
-  /* keyboard pointer to start of buffer */
-  mov  bx, #0x001E
-  mov  0x0480, bx
+  // /* keyboard pointer to start of buffer */
+  // mov  bx, #0x001E
+  // mov  0x0480, bx
 
-  /* keyboard pointer to end of buffer */
-  mov  bx, #0x003E
-  mov  0x0482, bx
+  // /* keyboard pointer to end of buffer */
+  // mov  bx, #0x003E
+  // mov  0x0482, bx
 
   /* init the keyboard */
-  call _keyboard_init
+ // call _keyboard_init
 
   ;; mov CMOS Equipment Byte to BDA Equipment Word
-  mov  ax, 0x0410
-  mov  al, #0x14
-  out  PORT_CMOS_INDEX, al
-  in   al, PORT_CMOS_DATA
+  // mov  ax, 0x0410
+  // mov  al, #0x14
+  // out  PORT_CMOS_INDEX, al
+  mov al, 0x0014
   mov  0x0410, ax
 
 
-  ;; Parallel setup
-  xor ax, ax
-  mov ds, ax
-  xor bx, bx
-  mov cl, #0x14 ; timeout value
-  mov dx, #0x378 ; Parallel I/O address, port 1
-  call detect_parport
-  mov dx, #0x278 ; Parallel I/O address, port 2
-  call detect_parport
-  shl bx, #0x0e
-  mov ax, 0x410   ; Equipment word bits 14..15 determine # parallel ports
-  and ax, #0x3fff
-  or  ax, bx ; set number of parallel ports
-  mov 0x410, ax
+  // ;; Parallel setup
+  // xor ax, ax
+  // mov ds, ax
+  // xor bx, bx
+  // mov cl, #0x14 ; timeout value
+  // mov dx, #0x378 ; Parallel I/O address, port 1
+  // call detect_parport
+  // mov dx, #0x278 ; Parallel I/O address, port 2
+  // call detect_parport
+  // shl bx, #0x0e
+  // mov ax, 0x410   ; Equipment word bits 14..15 determine # parallel ports
+  // and ax, #0x3fff
+  // or  ax, bx ; set number of parallel ports
+  // mov 0x410, ax
 
-  ;; Serial setup
-  SET_INT_VECTOR(0x14, #0xF000, #int14_handler)
-  xor bx, bx
-  mov cl, #0x0a ; timeout value
-  mov dx, #0x03f8 ; Serial I/O address, port 1
-  call detect_serial
-  mov dx, #0x02f8 ; Serial I/O address, port 2
-  call detect_serial
-  mov dx, #0x03e8 ; Serial I/O address, port 3
-  call detect_serial
-  mov dx, #0x02e8 ; Serial I/O address, port 4
-  call detect_serial
-  shl bx, #0x09
-  mov ax, 0x410   ; Equipment word bits 9..11 determine # serial ports
-  and ax, #0xf1ff
-  or  ax, bx ; set number of serial port
-  mov 0x410, ax
+  // ;; Serial setup
+  // SET_INT_VECTOR(0x14, #0xF000, #int14_handler)
+  // xor bx, bx
+  // mov cl, #0x0a ; timeout value
+  // mov dx, #0x03f8 ; Serial I/O address, port 1
+  // call detect_serial
+  // mov dx, #0x02f8 ; Serial I/O address, port 2
+  // call detect_serial
+  // mov dx, #0x03e8 ; Serial I/O address, port 3
+  // call detect_serial
+  // mov dx, #0x02e8 ; Serial I/O address, port 4
+  // call detect_serial
+  // shl bx, #0x09
+  // mov ax, 0x410   ; Equipment word bits 9..11 determine # serial ports
+  // and ax, #0xf1ff
+  // or  ax, bx ; set number of serial port
+  // mov 0x410, ax
 
   ;; CMOS RTC
   SET_INT_VECTOR(0x1A, #0xF000, #int1a_handler)
   SET_INT_VECTOR(0x4A, #0xF000, #dummy_iret_handler)
   SET_INT_VECTOR(0x70, #0xF000, #int70_handler)
   ;; BIOS DATA AREA 0x4CE ???
-  call timer_tick_post
+  // call timer_tick_post
 
-  ;; IRQ9 (IRQ2 redirect) setup
-  SET_INT_VECTOR(0x71, #0xF000, #int71_handler)
+  // ;; IRQ9 (IRQ2 redirect) setup
+  // SET_INT_VECTOR(0x71, #0xF000, #int71_handler)
 
-  ;; PS/2 mouse setup
-  SET_INT_VECTOR(0x74, #0xF000, #int74_handler)
+  // ;; PS/2 mouse setup
+  // SET_INT_VECTOR(0x74, #0xF000, #int74_handler)
 
   ;; IRQ13 (FPU exception) setup
   SET_INT_VECTOR(0x75, #0xF000, #int75_handler)
 
-  ;; Video setup
-  SET_INT_VECTOR(0x10, #0xF000, #int10_handler)
+  // ;; Video setup
+  // SET_INT_VECTOR(0x10, #0xF000, #int10_handler)
 
   ;; PIC
-  call post_init_pic
+  // call post_init_pic
 
 #if BX_ROMBIOS32
   call rombios32_init
@@ -11071,29 +11076,29 @@ normal_post:
 #endif //BX_PCIBIOS
 #endif
 
-  mov  cx, #0xc000  ;; init vga bios
-  mov  ax, #0xc780
-  call rom_scan
+//  mov  cx, #0xc000  ;; init vga bios
+//  mov  ax, #0xc780
+//  call rom_scan
 
-  call _print_bios_banner
+//  call _print_bios_banner
 
   ;;
   ;; Floppy setup
   ;;
-  call floppy_drive_post
+ // call floppy_drive_post
 
   ;;
   ;; Hard Drive setup
   ;;
-  call hard_drive_post
+ // call hard_drive_post
 
 #if BX_USE_ATADRV
 
   ;;
   ;; ATA/ATAPI driver setup
   ;;
-  call _ata_init
-  call _ata_detect
+//  call _ata_init
+//  call _ata_detect
   ;;
 
 #endif // BX_USE_ATADRV
@@ -11106,11 +11111,11 @@ normal_post:
   ;;
 #endif // BX_ELTORITO_BOOT
 
-  call _init_boot_vectors
+//  call _init_boot_vectors
 
-  mov  cx, #0xc800  ;; init option roms
-  mov  ax, #0xe000
-  call rom_scan
+// mov  cx, #0xc800  ;; init option roms
+//  mov  ax, #0xe000
+//  call rom_scan
 
 #if BX_ELTORITO_BOOT
   call _interactive_bootkey
@@ -11306,71 +11311,71 @@ int16_key_found:
 ;-------------------------------------------------
 ;- INT09h : Keyboard Hardware Service Entry Point -
 ;-------------------------------------------------
-.org 0xe987
-int09_handler:
-  cli
-  push ax
+// .org 0xe987
+// int09_handler:
+//   cli
+//   push ax
 
-  mov al, #0xAD      ;;disable keyboard
-  out PORT_PS2_STATUS, al
+//   mov al, #0xAD      ;;disable keyboard
+//   out PORT_PS2_STATUS, al
 
-  mov al, #0x0B
-  out PORT_PIC1_CMD, al
-  in  al, PORT_PIC1_CMD
-  and al, #0x02
-  jz  int09_finish
+//   mov al, #0x0B
+//   out PORT_PIC1_CMD, al
+//   in  al, PORT_PIC1_CMD
+//   and al, #0x02
+//   jz  int09_finish
 
-  in  al, PORT_PS2_DATA             ;;read key from keyboard controller
-  sti
-  push  ds
-  pusha
-#ifdef BX_CALL_INT15_4F
-  mov  ah, #0x4f     ;; allow for keyboard intercept
-  stc
-  int  #0x15
-  push bp
-  mov  bp, sp
-  mov  [bp + 0x10], al
-  pop  bp
-  jnc  int09_done
-#endif
+//   in  al, PORT_PS2_DATA             ;;read key from keyboard controller
+//   sti
+//   push  ds
+//   pusha
+// #ifdef BX_CALL_INT15_4F
+//   mov  ah, #0x4f     ;; allow for keyboard intercept
+//   stc
+//   int  #0x15
+//   push bp
+//   mov  bp, sp
+//   mov  [bp + 0x10], al
+//   pop  bp
+//   jnc  int09_done
+// #endif
 
-  ;; check for extended key
-  push #0x40
-  pop  ds
-  cmp  al, #0xe0
-  jne int09_check_pause
-  mov  al, BYTE [0x96]     ;; mf2_state |= 0x02
-  or   al, #0x02
-  mov  BYTE [0x96], al
-  jmp int09_done
+//   ;; check for extended key
+//   push #0x40
+//   pop  ds
+//   cmp  al, #0xe0
+//   jne int09_check_pause
+//   mov  al, BYTE [0x96]     ;; mf2_state |= 0x02
+//   or   al, #0x02
+//   mov  BYTE [0x96], al
+//   jmp int09_done
 
-int09_check_pause: ;; check for pause key
-  cmp  al, #0xe1
-  jne int09_process_key
-  mov  al, BYTE [0x96]     ;; mf2_state |= 0x01
-  or   al, #0x01
-  mov  BYTE [0x96], al
-  jmp int09_done
+// int09_check_pause: ;; check for pause key
+//   cmp  al, #0xe1
+//   jne int09_process_key
+//   mov  al, BYTE [0x96]     ;; mf2_state |= 0x01
+//   or   al, #0x01
+//   mov  BYTE [0x96], al
+//   jmp int09_done
 
-int09_process_key:
-  call  _int09_function
+// int09_process_key:
+//   call  _int09_function
 
-int09_done:
-  popa
-  pop   ds
-  cli
-  call eoi_master_pic
+// int09_done:
+//   popa
+//   pop   ds
+//   cli
+//   call eoi_master_pic
 
-  ;; Notify keyboard interrupt complete w/ int 15h, function AX=9102
-  mov ax, #0x9102
-  int #0x15
+//   ;; Notify keyboard interrupt complete w/ int 15h, function AX=9102
+//   mov ax, #0x9102
+//   int #0x15
 
-int09_finish:
-  mov al, #0xAE      ;;enable keyboard
-  out PORT_PS2_STATUS, al
-  pop ax
-  iret
+// int09_finish:
+//   mov al, #0xAE      ;;enable keyboard
+//   out PORT_PS2_STATUS, al
+//   pop ax
+//   iret
 
 ; IRQ9 handler(Redirect to IRQ2)
 ;--------------------
@@ -11712,7 +11717,7 @@ int08_store_ticks:
 .org 0xfef3 ; Initial Interrupt Vector Offsets Loaded by POST
 initial_int_vector_offset_08_1f:
   dw int08_handler
-  dw int09_handler
+  // dw int09_handler
   dw dummy_master_pic_irq_handler
   dw dummy_master_pic_irq_handler
   dw dummy_master_pic_irq_handler
