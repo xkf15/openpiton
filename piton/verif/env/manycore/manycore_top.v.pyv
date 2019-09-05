@@ -240,8 +240,7 @@ begin
     begin
         $dumpfile("myvcd.vcd");
         $dumpall();
-        $dumpvars(1, cmp_top.system.chip.tile0);
-        $dumpvars(1, cmp_top.system.chip.tile0.g_core);
+        $dumpvars;
     end
 `endif
 
@@ -499,8 +498,13 @@ system system(
     %>
 
 `ifndef VERILATOR
-    // T1's TSO monitor, stripped of all L2 references
-    tso_mon tso_mon(`CHIP_INT_CLK, `CORE_REF0.reset_l);
+   // T1's TSO monitor, stripped of all L2 references
+   tso_mon tso_mon(`CHIP_INT_CLK,
+`ifndef PITON_AO486
+                   `CORE_REF0.reset_l);
+`else
+                   `CORE_REF0.rst_n);
+`endif
 `endif
 
     // L15 MONITORS

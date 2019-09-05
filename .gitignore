@@ -107,3 +107,7 @@ ucli.key
 cscope.*
 tags
 *.bak
+my_top.vcd
+hello.gtkw
+env_piton.sh
+BIOS-bochs-legacy
