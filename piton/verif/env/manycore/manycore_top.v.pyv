@@ -63,10 +63,7 @@ input                                 diag_done,
 input                                 ok_iob
 `endif
 );
-initial begin
-$dumpfile("test.vcd");
-$dumpvars;
-end
+
 //////////////////////
 // Type Declarations
 //////////////////////
@@ -243,8 +240,7 @@ begin
     begin
         $dumpfile("myvcd.vcd");
         $dumpall();
-        $dumpvars(1, cmp_top.system.chip.tile0);
-        $dumpvars(1, cmp_top.system.chip.tile0.g_ao486_core);
+        $dumpvars;
     end
 `endif
 
