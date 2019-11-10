@@ -80,7 +80,8 @@ def setParserOptions(parser):
         "openpiton::sparc_mul"          : "OpenSPARC T1 Multiplier Unit (MLU)",
         "openpiton::sparc_srams"        : "OpenSPARC T1 SRAMS (L1)",
         "openpiton::sparc_tlu"          : "OpenSPARC T1 Trap Logic Unit (TLU)",
-        "openpiton::tile"               : "OpenPiton Tile"
+        "openpiton::tile"               : "OpenPiton Tile",
+        "verticalresearchgroup::miaow"  : "MIAOW GPGPU"
     }
     fusesoc_core_help_str = \
 """Available core for picking using FuseSoc (default: %(default)s):
@@ -312,7 +313,8 @@ fusesoc2toplevel = {
     "openpiton::sparc_lsu"          : "lsu",
     "openpiton::sparc_mul"          : "sparc_mul_top_nospu_wrap",
     "openpiton::sparc_tlu"          : "tlu_nospu_wrap",
-    "openpiton::tile"               : "tile"
+    "openpiton::tile"               : "tile",
+    "verticalresearchgroup::miaow"  : "miaow"
 }
 
 json_template = """{{
