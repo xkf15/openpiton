@@ -1,0 +1,48 @@
+Name:	simv
+Umask:	0022
+State:	S (sleeping)
+Tgid:	50942
+Ngid:	0
+Pid:	50942
+PPid:	50865
+TracerPid:	0
+Uid:	152880	152880	152880	152880
+Gid:	1034	1034	1034	1034
+FDSize:	64
+Groups:	1034 
+VmPeak:	  356556 kB
+VmSize:	  356460 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	   66840 kB
+VmRSS:	   66840 kB
+RssAnon:	   29884 kB
+RssFile:	   36956 kB
+RssShmem:	       0 kB
+VmData:	   33340 kB
+VmStk:	     140 kB
+VmExe:	     800 kB
+VmLib:	  213512 kB
+VmPTE:	     488 kB
+VmSwap:	       0 kB
+Threads:	1
+SigQ:	0/766691
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000010002
+SigIgn:	0000000006000006
+SigCgt:	00000001c08a76e9
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	0000001fffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Speculation_Store_Bypass:	thread vulnerable
+Cpus_allowed:	ffffffff,ffffffff,ffffffff,ffffffff,ffffffff,ffffffff,ffffffff,ffffffff
+Cpus_allowed_list:	0-255
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000003
+Mems_allowed_list:	0-1
+voluntary_ctxt_switches:	403
+nonvoluntary_ctxt_switches:	3

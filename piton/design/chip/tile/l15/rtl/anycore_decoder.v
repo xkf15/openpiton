@@ -39,6 +39,8 @@ module anycore_decoder(
 
 localparam STORE_IDLE = 1'b0;
 localparam STORE_ACTIVE = 1'b1;
+localparam LOAD_IDLE = 1'b0;
+localparam LOAD_ACTIVE = 1'b1;
 
 reg current_val;
 reg prev_val;
@@ -46,11 +48,16 @@ reg prev_val;
 reg store_reg;
 reg store_next;
 
+reg load_reg;
+reg load_next;
+
 // Get full address that's 64 bits long since it's otherwise to icache
 // block alignment
 wire [63:0] anycore_imiss_full_addr = anycore_ic2mem_reqaddr << (64-`ICACHE_BLOCK_ADDR_BITS);
 // Sign extend to 64 bits
 wire [63:0] anycore_store_full_addr = {{((64-`DCACHE_ST_ADDR_BITS)-3){anycore_dc2mem_staddr[`DCACHE_ST_ADDR_BITS-1]}}, (anycore_dc2mem_staddr << 3)};
+// Sign extend to 64 bits
+wire [63:0] anycore_load_full_addr = {{((64-`DCACHE_BLOCK_ADDR_BITS)-6){anycore_dc2mem_ldaddr[`DCACHE_BLOCK_ADDR_BITS-1]}}, (anycore_dc2mem_ldaddr << 6)};
 
 reg  [`PHY_ADDR_WIDTH-1:0] anycoredecoder_l15_address_next;
 reg  [63:0] anycoredecoder_l15_data_next;
@@ -60,19 +67,46 @@ reg  [2:0]  anycoredecoder_l15_size_next;
 always @ (posedge clk) begin
     if (!rst_n) begin
         store_reg <= STORE_IDLE;
+        load_reg <= LOAD_IDLE;
     end
     else begin
         store_reg <= store_next;
+        load_reg <= load_next;
     end
 end
 
+assign new_load = ~load_reg & anycore_dc2mem_ldvalid;
+assign new_store = ~store_reg & anycore_dc2mem_stvalid;
+/*
+reg curr_load_valid;
+reg prev_load_valid;
+reg curr_store_valid;
+reg prev_store_valid;
+always @( posedge clk ) begin
+		if (!rst_n) begin
+				curr_load_valid <= LOAD_IDLE;
+				prev_load_valid <= LOAD_IDLE;
+				curr_store_valid <= LOAD_IDLE;
+				prev_store_valid <= LOAD_IDLE;
+		end
+		else begin
+				if()
+		end
+end
+*/
+
 always @ * begin
     store_next = store_reg;
+    load_next = load_reg;
+    if (l15_transducer_ack) begin
+        store_next = STORE_IDLE;
+        load_next = LOAD_IDLE;
+    end
     if (anycore_dc2mem_stvalid) begin
         store_next = STORE_ACTIVE;
     end
-    if (l15_transducer_ack) begin
-        store_next = STORE_IDLE;
+    if (anycore_dc2mem_ldvalid) begin
+        load_next = LOAD_ACTIVE;
     end
 end
 
@@ -88,9 +122,9 @@ begin
         anycoredecoder_l15_size <= 3'b0;
     end
     else begin
-        current_val <= anycore_ic2mem_reqvalid | anycore_dc2mem_stvalid;
+        current_val <= anycore_ic2mem_reqvalid | anycore_dc2mem_stvalid | anycore_dc2mem_ldvalid;
         prev_val <= current_val;
-        anycoredecoder_l15_val <= anycore_ic2mem_reqvalid | anycore_dc2mem_stvalid | store_reg;
+        anycoredecoder_l15_val <= anycore_ic2mem_reqvalid | anycore_dc2mem_ldvalid | anycore_dc2mem_stvalid | store_reg;//anycore_dc2mem_stvalid | anycore_dc2mem_ldvalid | store_reg;// | load_reg;
         anycoredecoder_l15_address <= anycoredecoder_l15_address_next;
         anycoredecoder_l15_data <= anycoredecoder_l15_data_next;
         anycoredecoder_l15_rqtype <= anycoredecoder_l15_rqtype_next;
@@ -132,6 +166,19 @@ else if (anycore_dc2mem_stvalid) begin
     anycoredecoder_l15_size_next = anycore_dc2mem_stsize;
 end
 else if (store_reg == STORE_ACTIVE) begin
+    anycoredecoder_l15_address_next = anycoredecoder_l15_address;
+    anycoredecoder_l15_data_next = anycoredecoder_l15_data;
+    anycoredecoder_l15_rqtype_next = anycoredecoder_l15_rqtype;
+    anycoredecoder_l15_size_next = anycoredecoder_l15_size;
+end
+// load
+else if (anycore_dc2mem_ldvalid) begin
+    anycoredecoder_l15_address_next =  anycore_load_full_addr[`PHY_ADDR_WIDTH-1:0];
+    anycoredecoder_l15_data_next = 64'b0;
+    anycoredecoder_l15_rqtype_next = `LOAD_RQ;
+    anycoredecoder_l15_size_next = `PCX_SZ_4B;
+end
+else if (load_reg == LOAD_ACTIVE) begin
     anycoredecoder_l15_address_next = anycoredecoder_l15_address;
     anycoredecoder_l15_data_next = anycoredecoder_l15_data;
     anycoredecoder_l15_rqtype_next = anycoredecoder_l15_rqtype;
