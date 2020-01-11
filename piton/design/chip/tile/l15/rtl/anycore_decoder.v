@@ -59,6 +59,8 @@ wire [63:0] anycore_store_full_addr = {{((64-`DCACHE_ST_ADDR_BITS)-3){anycore_dc
 // Sign extend to 64 bits
 wire [63:0] anycore_load_full_addr = {{((64-`DCACHE_BLOCK_ADDR_BITS)-6){anycore_dc2mem_ldaddr[`DCACHE_BLOCK_ADDR_BITS-1]}}, (anycore_dc2mem_ldaddr << 6)};
 
+wire [63:0] anycore_dc2mem_stdata_flipped = {anycore_dc2mem_stdata[7:0], anycore_dc2mem_stdata[15:8], anycore_dc2mem_stdata[23:16], anycore_dc2mem_stdata[31:24], anycore_dc2mem_stdata[39:32], anycore_dc2mem_stdata[47:40], anycore_dc2mem_stdata[55:48], anycore_dc2mem_stdata[63:56]};
+
 reg  [`PHY_ADDR_WIDTH-1:0] anycoredecoder_l15_address_next;
 reg  [63:0] anycoredecoder_l15_data_next;
 reg  [4:0]  anycoredecoder_l15_rqtype_next;
@@ -161,7 +163,7 @@ if (anycore_ic2mem_reqvalid) begin
 end
 else if (anycore_dc2mem_stvalid) begin
     anycoredecoder_l15_address_next = anycore_store_full_addr[`PHY_ADDR_WIDTH-1:0];
-    anycoredecoder_l15_data_next = anycore_dc2mem_stdata;
+    anycoredecoder_l15_data_next = anycore_dc2mem_stdata_flipped;//anycore_dc2mem_stdata;
     anycoredecoder_l15_rqtype_next = `STORE_RQ;
     anycoredecoder_l15_size_next = anycore_dc2mem_stsize;
 end
