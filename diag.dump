@@ -44,5 +44,4 @@ Disassembly of section .text:
     80000090:	00000113          	li	sp,0
 
 0000000080000094 <loop>:
-    80000094:	00110113          	addi	sp,sp,1
-    80000098:	ffdff06f          	j	80000094 <loop>
+    80000094:	0000006f          	j	80000094 <loop>
