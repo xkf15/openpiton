@@ -101,7 +101,8 @@ assign anycore_mem2ic_data[`ICACHE_BITS_IN_LINE-1:0] = {l15_anycoreencoder_data_
 
 assign anycore_mem2dc_ldtag = l15_anycoreencoder_address_sext[63:64-`DCACHE_TAG_BITS];
 assign anycore_mem2dc_ldindex = l15_anycoreencoder_address_sext[64-`DCACHE_TAG_BITS-1:64-`DCACHE_TAG_BITS-`DCACHE_INDEX_BITS];
-assign anycore_mem2dc_lddata[`DCACHE_BITS_IN_LINE-1:0] = {{l15_anycoreencoder_data_3_swap, l15_anycoreencoder_data_2_swap, l15_anycoreencoder_data_1_swap, l15_anycoreencoder_data_0_swap}, {l15_anycoreencoder_data_3_swap, l15_anycoreencoder_data_2_swap, l15_anycoreencoder_data_1_swap, l15_anycoreencoder_data_0_swap}};
+//assign anycore_mem2dc_lddata[`DCACHE_BITS_IN_LINE-1:0] = {{l15_anycoreencoder_data_3_swap, l15_anycoreencoder_data_2_swap, l15_anycoreencoder_data_1_swap, l15_anycoreencoder_data_0_swap}, {l15_anycoreencoder_data_3_swap, l15_anycoreencoder_data_2_swap, l15_anycoreencoder_data_1_swap, l15_anycoreencoder_data_0_swap}};
+assign anycore_mem2dc_lddata[`DCACHE_BITS_IN_LINE-1:0] = {l15_anycoreencoder_data_3_swap, l15_anycoreencoder_data_2_swap, l15_anycoreencoder_data_1_swap, l15_anycoreencoder_data_0_swap};
 
 // keep track of whether we have received the wakeup interrupt
 reg int_recv;
