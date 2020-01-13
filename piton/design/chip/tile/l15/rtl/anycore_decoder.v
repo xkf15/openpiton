@@ -46,9 +46,10 @@ wire [63:0] anycore_imiss_full_addr = anycore_ic2mem_reqaddr << (64-`ICACHE_BLOC
 // Sign extend to 64 bits
 wire [63:0] anycore_store_full_addr = {{((64-`DCACHE_ST_ADDR_BITS)-3){anycore_dc2mem_staddr[`DCACHE_ST_ADDR_BITS-1]}}, (anycore_dc2mem_staddr << 3)};
 // Sign extend to 64 bits
-wire [63:0] anycore_load_full_addr = {{((64-`DCACHE_BLOCK_ADDR_BITS)-5){anycore_dc2mem_ldaddr[`DCACHE_BLOCK_ADDR_BITS-1]}}, (anycore_dc2mem_ldaddr << 5)};
+wire [63:0] anycore_load_full_addr = {{((64-`DCACHE_BLOCK_ADDR_BITS)-4){anycore_dc2mem_ldaddr[`DCACHE_BLOCK_ADDR_BITS-1]}}, (anycore_dc2mem_ldaddr << 4)};
 
 wire [63:0] anycore_dc2mem_stdata_flipped = {anycore_dc2mem_stdata[7:0], anycore_dc2mem_stdata[15:8], anycore_dc2mem_stdata[23:16], anycore_dc2mem_stdata[31:24], anycore_dc2mem_stdata[39:32], anycore_dc2mem_stdata[47:40], anycore_dc2mem_stdata[55:48], anycore_dc2mem_stdata[63:56]};
+//wire [63:0] anycore_dc2mem_stdata_flipped = anycore_dc2mem_stdata;
 
 // Status of different requests
 localparam IDLE = 2'd0;
@@ -175,7 +176,7 @@ always @ * begin
 							     : anycore_load_full_addr_buf[`PHY_ADDR_WIDTH-1:0];
         anycoredecoder_l15_data_next = 64'b0;
         anycoredecoder_l15_rqtype_next = `LOAD_RQ;
-        anycoredecoder_l15_size_next = `PCX_SZ_4B;
+        anycoredecoder_l15_size_next = `PCX_SZ_16B;
     end
     else if(store_next == ISSUE) begin
         anycoredecoder_l15_address_next = (store_reg == IDLE) ? anycore_store_full_addr_buf_next[`PHY_ADDR_WIDTH-1:0]
