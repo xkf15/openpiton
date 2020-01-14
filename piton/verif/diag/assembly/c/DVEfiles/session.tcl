@@ -1,14 +1,15 @@
 # Begin_DVE_Session_Save_Info
 # DVE full session
-# Saved on Mon Jan 13 05:03:52 2020
+# Saved on Mon Jan 13 08:00:33 2020
 # Designs open: 1
 #   Sim: /home/kaifengx/anycore/build/manycore/rel-0.1/simv
 # Toplevel windows open: 1
 # 	TopLevel.1
-#   Source.1: cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.activeList
-#   Group count = 2
-#   Group Group1 signal count = 2
-#   Group Group2 signal count = 2
+#   Source.1: cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.unnamed$$_1
+#   Group count = 3
+#   Group Group1 signal count = 6
+#   Group simple_complex_fp.mux signal count = 4
+#   Group simple_complex_fp.calu signal count = 50
 # End_DVE_Session_Save_Info
 
 # DVE version: O-2018.09-SP2_Full64
@@ -67,7 +68,7 @@ if {![gui_exist_window -window TopLevel.1]} {
 } else { 
     set TopLevel.1 TopLevel.1
 }
-gui_show_window -window ${TopLevel.1} -show_state normal -rect {{8 35} {1871 991}}
+gui_show_window -window ${TopLevel.1} -show_state normal -rect {{8 35} {1870 990}}
 
 # ToolBar settings
 gui_set_toolbar_attributes -toolbar {TimeOperations} -dock_state top
@@ -114,23 +115,23 @@ gui_show_toolbar -toolbar {Testbench}
 # End ToolBar settings
 
 # Docked window settings
-set HSPane.1 [gui_create_window -type HSPane -parent ${TopLevel.1} -dock_state left -dock_on_new_line true -dock_extent 435]
+set HSPane.1 [gui_create_window -type HSPane -parent ${TopLevel.1} -dock_state left -dock_on_new_line true -dock_extent 434]
 catch { set Hier.1 [gui_share_window -id ${HSPane.1} -type Hier] }
-gui_set_window_pref_key -window ${HSPane.1} -key dock_width -value_type integer -value 435
+gui_set_window_pref_key -window ${HSPane.1} -key dock_width -value_type integer -value 434
 gui_set_window_pref_key -window ${HSPane.1} -key dock_height -value_type integer -value -1
 gui_set_window_pref_key -window ${HSPane.1} -key dock_offset -value_type integer -value 0
-gui_update_layout -id ${HSPane.1} {{left 0} {top 0} {width 434} {height 706} {dock_state left} {dock_on_new_line true} {child_hier_colhier 383} {child_hier_coltype 81} {child_hier_colpd 0} {child_hier_col1 0} {child_hier_col2 1} {child_hier_col3 -1}}
-set DLPane.1 [gui_create_window -type DLPane -parent ${TopLevel.1} -dock_state left -dock_on_new_line true -dock_extent 511]
+gui_update_layout -id ${HSPane.1} {{left 0} {top 0} {width 433} {height 706} {dock_state left} {dock_on_new_line true} {child_hier_colhier 383} {child_hier_coltype 81} {child_hier_colpd 0} {child_hier_col1 0} {child_hier_col2 1} {child_hier_col3 -1}}
+set DLPane.1 [gui_create_window -type DLPane -parent ${TopLevel.1} -dock_state left -dock_on_new_line true -dock_extent 510]
 catch { set Data.1 [gui_share_window -id ${DLPane.1} -type Data] }
-gui_set_window_pref_key -window ${DLPane.1} -key dock_width -value_type integer -value 511
+gui_set_window_pref_key -window ${DLPane.1} -key dock_width -value_type integer -value 510
 gui_set_window_pref_key -window ${DLPane.1} -key dock_height -value_type integer -value 706
 gui_set_window_pref_key -window ${DLPane.1} -key dock_offset -value_type integer -value 0
-gui_update_layout -id ${DLPane.1} {{left 0} {top 0} {width 510} {height 706} {dock_state left} {dock_on_new_line true} {child_data_colvariable 251} {child_data_colvalue 136} {child_data_coltype 153} {child_data_col1 0} {child_data_col2 1} {child_data_col3 2}}
-set Console.1 [gui_create_window -type Console -parent ${TopLevel.1} -dock_state bottom -dock_on_new_line true -dock_extent 152]
+gui_update_layout -id ${DLPane.1} {{left 0} {top 0} {width 509} {height 706} {dock_state left} {dock_on_new_line true} {child_data_colvariable 251} {child_data_colvalue 136} {child_data_coltype 153} {child_data_col1 0} {child_data_col2 1} {child_data_col3 2}}
+set Console.1 [gui_create_window -type Console -parent ${TopLevel.1} -dock_state bottom -dock_on_new_line true -dock_extent 151]
 gui_set_window_pref_key -window ${Console.1} -key dock_width -value_type integer -value 1860
-gui_set_window_pref_key -window ${Console.1} -key dock_height -value_type integer -value 152
+gui_set_window_pref_key -window ${Console.1} -key dock_height -value_type integer -value 151
 gui_set_window_pref_key -window ${Console.1} -key dock_offset -value_type integer -value 0
-gui_update_layout -id ${Console.1} {{left 0} {top 0} {width 1863} {height 151} {dock_state bottom} {dock_on_new_line true}}
+gui_update_layout -id ${Console.1} {{left 0} {top 0} {width 1862} {height 150} {dock_state bottom} {dock_on_new_line true}}
 #### Start - Readjusting docked view's offset / size
 set dockAreaList { top left right bottom }
 foreach dockArea $dockAreaList {
@@ -200,20 +201,58 @@ gui_set_time_units 1ps
 # Global: Signal Compare
 
 # Global: Signal Groups
-gui_load_child_values {cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe3.execute}
+gui_load_child_values {cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.mux}
+gui_load_child_values {cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute}
 
 
-set _session_group_3 Group1
-gui_sg_create "$_session_group_3"
-set Group1 "$_session_group_3"
-
-gui_sg_addsignal -group "$_session_group_3" { cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe3.execute.exePacket_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe3.execute.wbPacket_o }
-
-set _session_group_4 Group2
+set _session_group_4 Group1
 gui_sg_create "$_session_group_4"
-set Group2 "$_session_group_4"
+set Group1 "$_session_group_4"
 
-gui_sg_addsignal -group "$_session_group_4" { cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.exePacket_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.wbPacket_o }
+gui_sg_addsignal -group "$_session_group_4" { cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.exePacket_C cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.exePacket_F cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.exePacket_S cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.wbPacket_C cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.wbPacket_F cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.wbPacket_S }
+
+set _session_group_5 simple_complex_fp.mux
+gui_sg_create "$_session_group_5"
+set simple_complex_fp.mux "$_session_group_5"
+
+gui_sg_addsignal -group "$_session_group_5" { cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.mux.input_1 cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.mux.input_2 cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.mux.input_3 cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.mux.output_1 }
+
+set _session_group_6 simple_complex_fp.calu
+gui_sg_create "$_session_group_6"
+set simple_complex_fp.calu "$_session_group_6"
+
+gui_sg_addsignal -group "$_session_group_6" { cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.DEPTH cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_PRODUCT_L cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_QUOTIENT cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_REMAINDER cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_PRODUCT_H cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_PRODUCT_L cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_QUOTIENT cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_REMAINDER cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.TOGGLE cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_EXT_QUOTIENT cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_EXT_REMAINDER cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_PRODUCT_H cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_PRODUCT_L cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_QUOTIENT cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_REMAINDER cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.clk cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.data1 cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.data1_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.data1_s cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.data2 cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.data2_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.data2_s cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.divisor cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.exePacket_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.flags cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.fuEnabled cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.immd_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.inst_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.recoverFlag_i cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.recoverFlag_reg cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.reset cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.reset_n cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.resultTypeShiftedBuffer cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.resultTypeShifted cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.resultType cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.shiftFlagsBuffer cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.shiftFlagsOut }
+gui_sg_addsignal -group "$_session_group_6" { cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.shiftPacketBuffer cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.shiftPacketOut cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.signedProduct_h cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.signedProduct_l cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.signedQuotient cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.signedRemainder cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.toggleFlag cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.toggleFlag_o cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.unsignedProduct_h cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.unsignedProduct_l cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.unsignedQuotient cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.unsignedRemainder cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.wbPacket_o }
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.DEPTH}
+gui_set_radix -radix {twosComplement} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.DEPTH}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_PRODUCT_L}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_PRODUCT_L}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_QUOTIENT}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_QUOTIENT}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_REMAINDER}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_EXT_REMAINDER}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_PRODUCT_H}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_PRODUCT_H}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_PRODUCT_L}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_PRODUCT_L}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_QUOTIENT}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_QUOTIENT}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_REMAINDER}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.SIGNED_REMAINDER}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.TOGGLE}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.TOGGLE}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_EXT_QUOTIENT}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_EXT_QUOTIENT}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_EXT_REMAINDER}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_EXT_REMAINDER}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_PRODUCT_H}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_PRODUCT_H}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_PRODUCT_L}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_PRODUCT_L}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_QUOTIENT}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_QUOTIENT}
+gui_set_radix -radix {decimal} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_REMAINDER}
+gui_set_radix -radix {unsigned} -signals {Sim:cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.UNSIGNED_REMAINDER}
 
 # Global: Highlighting
 
@@ -223,7 +262,7 @@ gui_change_stack_mode -mode list
 # Post database loading setting...
 
 # Restore C1 time
-gui_set_time -C1_only 18199500
+gui_set_time -C1_only 70657500
 
 
 
@@ -255,24 +294,27 @@ catch {gui_list_expand -id ${Hier.1} cmp_top.system.chip}
 catch {gui_list_expand -id ${Hier.1} cmp_top.system.chip.tile0}
 catch {gui_list_expand -id ${Hier.1} cmp_top.system.chip.tile0.g_anycore_core.core}
 catch {gui_list_expand -id ${Hier.1} cmp_top.system.chip.tile0.g_anycore_core.core.coreTop}
-catch {gui_list_select -id ${Hier.1} {cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2}}
-gui_view_scroll -id ${Hier.1} -vertical -set 684
+catch {gui_list_expand -id ${Hier.1} cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.decode}
+catch {gui_list_select -id ${Hier.1} {{cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.decode.decode_RISCV_gen[0].decode_RISCV}}}
+gui_view_scroll -id ${Hier.1} -vertical -set 379
 gui_view_scroll -id ${Hier.1} -horizontal -set 0
 
 # Data 'Data.1'
 gui_list_set_filter -id ${Data.1} -list { {Buffer 1} {Input 1} {Others 1} {Linkage 1} {Output 1} {LowPower 1} {Parameter 1} {All 1} {Aggregate 1} {LibBaseMember 1} {Event 1} {Assertion 1} {Constant 1} {Interface 1} {BaseMembers 1} {Signal 1} {$unit 1} {Inout 1} {Variable 1} }
 gui_list_set_filter -id ${Data.1} -text {*}
-gui_list_show_data -id ${Data.1} {cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2}
+gui_list_show_data -id ${Data.1} {cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.decode.decode_RISCV_gen[0].decode_RISCV}
+gui_show_window -window ${Data.1}
+catch { gui_list_select -id ${Data.1} {{cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.decode.decode_RISCV_gen[0].decode_RISCV.instFU_0} }}
 gui_view_scroll -id ${Data.1} -vertical -set 0
 gui_view_scroll -id ${Data.1} -horizontal -set 0
-gui_view_scroll -id ${Hier.1} -vertical -set 684
+gui_view_scroll -id ${Hier.1} -vertical -set 379
 gui_view_scroll -id ${Hier.1} -horizontal -set 0
 
 # Source 'Source.1'
 gui_src_value_annotate -id ${Source.1} -switch false
 gui_set_env TOGGLE::VALUEANNOTATE 0
-gui_open_source -id ${Source.1}  -replace -active cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.activeList /home/kaifengx/anycore/piton/design/chip/tile/anycore/retire/ActiveList.sv
-gui_view_scroll -id ${Source.1} -vertical -set 3075
+gui_open_source -id ${Source.1}  -replace -active {cmp_top.system.chip.tile0.g_anycore_core.core.coreTop.exePipe2.execute.simple_complex_fp.calu.unnamed$$_1} /home/kaifengx/anycore/piton/design/chip/tile/anycore/execute/Complex_ALU.sv
+gui_view_scroll -id ${Source.1} -vertical -set 1365
 gui_src_set_reusable -id ${Source.1}
 # Restore toplevel window zorder
 # The toplevel window could be closed if it has no view/pane

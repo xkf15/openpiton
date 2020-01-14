@@ -56,10 +56,8 @@ localparam IDLE = 2'd0;
 localparam ARRIVE = 2'd1;
 localparam ISSUE = 2'd2;
 
-// "prev" is the register for bypass.
 // "next" is wire
 reg [1:0] store_reg;
-reg [1:0] store_prev;
 reg [1:0] store_next;
 reg [63:0]    			  anycore_store_full_addr_buf;  
 reg [63:0]    			  anycore_store_full_addr_buf_next;  
@@ -69,13 +67,11 @@ reg [2:0]                         anycore_dc2mem_stsize_buf;
 reg [2:0]                         anycore_dc2mem_stsize_buf_next;
 
 reg [1:0] load_reg;
-reg [1:0] load_prev;
 reg [1:0] load_next;
 reg [63:0] 			  anycore_load_full_addr_buf;
 reg [63:0] 			  anycore_load_full_addr_buf_next;
 
 reg [1:0] imiss_reg;
-reg [1:0] imiss_prev;
 reg [1:0] imiss_next;
 reg [63:0] 			  anycore_imiss_full_addr_buf;
 reg [63:0] 			  anycore_imiss_full_addr_buf_next;
@@ -91,9 +87,6 @@ always @ (posedge clk) begin
         store_reg <= IDLE;
         load_reg <= IDLE;
         imiss_reg <= IDLE;
-        store_prev <= IDLE;
-        load_prev <= IDLE;
-        imiss_prev <= IDLE;
 	anycore_store_full_addr_buf <= 64'b0;
 	anycore_dc2mem_stdata_flipped_buf   <= {`SIZE_DATA{1'b0}};
 	anycore_dc2mem_stsize_buf   <= 3'b0;
@@ -104,9 +97,6 @@ always @ (posedge clk) begin
         store_reg <= store_next;
         load_reg <= load_next;
         imiss_reg <= imiss_next;
-        store_prev <= store_reg;
-        load_prev <= load_reg;
-        imiss_prev <= imiss_reg;
 	anycore_store_full_addr_buf <= anycore_store_full_addr_buf_next;
 	anycore_dc2mem_stdata_flipped_buf   <= anycore_dc2mem_stdata_flipped_buf_next;
 	anycore_dc2mem_stsize_buf   <= anycore_dc2mem_stsize_buf_next;
